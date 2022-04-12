@@ -1,0 +1,8 @@
+{
+    "regexps": {
+        "methodName"    : "^\\S+\\(\\)\\n",
+        "methodBody"    : "[\\s\\S]*?^\\}",
+        "searchTarget"  : "w_download_to [^\"]\\w* htt[\\S]* [\\S]*"
+    },
+    "payloadFilePath"     : ""
+}
