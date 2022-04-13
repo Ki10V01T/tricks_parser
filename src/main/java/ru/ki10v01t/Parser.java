@@ -34,27 +34,27 @@ public class Parser {
  * @param filepath - the absolute path to file in filesystem. If selected mode is CONFIG, checks: whether the value is non-zero  
  * @param mode
  */
-    public static void readFile(String filepath, MODE mode) {
-        File file = null;
+    public static void readFile(String configFilePath, MODE mode) {
+        File configFile = null;
         try {
-            if (filepath == null || filepath == "") {
-                filepath = "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/config.json";
+            if (configFilePath == null || configFilePath == "") {
+                configFilePath = "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/config.json";
             }
-            file = new File(filepath);
-            if (!file.exists()) {
+            configFile = new File(configFilePath);
+            if (!configFile.exists()) {
                 System.out.println("Запрашиваемый конфигурационный файл не найден. Используется стандартный");
-                filepath = "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/config.json";
+                configFilePath = "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/config.json";
             } 
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
 
-        try (FileReader fr = new FileReader(file);   
+        try (FileReader fr = new FileReader(configFile);   
             BufferedReader bufReader = new BufferedReader(fr);) 
         {
             switch (mode) {
                 case CONFIG:
-                    ConfigManager.createConfig(file);
+                    ConfigManager.createConfig(configFile);
                     ConfigManager.printConfig();
                     break;
                 case PAYLOAD:
@@ -74,10 +74,11 @@ public class Parser {
     }
 
     private static void doPayloadProcessing(BufferedReader bufReader) throws IOException, ParserConfigurationException {
-        String line = null;
         if (ConfigManager.getConfig() == null) {
             throw new ParserConfigurationException("Конфиг не задан");
         }
+        String line = null;
+        File payloadFile = null;
         int lineNumber=0;
         ArrayList<Package> pkgArray = new ArrayList<Package>();
         while (line != null) {
