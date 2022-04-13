@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.commons.io.FilenameUtils;
 import ru.ki10v01t.service.ConfigManager;
 import ru.ki10v01t.service.Package;
 
@@ -52,16 +51,14 @@ public class Parser {
 
         try (FileReader fr = new FileReader(file);   
             BufferedReader bufReader = new BufferedReader(fr);) 
-        {             
-            String line = bufReader.readLine();
-
+        {
             switch (mode) {
                 case CONFIG:
                     ConfigManager.createConfig(file);
-                    ConfigManager.getConfig();
+                    ConfigManager.printConfig();
                     break;
                 case PAYLOAD:
-                    doPayloadProcessing(line, bufReader);
+                    doPayloadProcessing(bufReader);
                     break;
                 default:
                     throw new ParserConfigurationException("Задан неправильный режим работы парсера");
@@ -76,14 +73,15 @@ public class Parser {
         }
     }
 
-    private static void doPayloadProcessing(String line, BufferedReader bufReader) throws IOException, ParserConfigurationException {
+    private static void doPayloadProcessing(BufferedReader bufReader) throws IOException, ParserConfigurationException {
+        String line = null;
         if (ConfigManager.getConfig() == null) {
             throw new ParserConfigurationException("Конфиг не задан");
         }
         int lineNumber=0;
         ArrayList<Package> pkgArray = new ArrayList<Package>();
         while (line != null) {
-
+            
             //pkgArray.add(e)
             line = bufReader.readLine();   
             lineNumber++;         

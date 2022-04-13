@@ -32,11 +32,12 @@ public class ConfigManager {
         return currentConfig;
     }
     public static void printConfig() {
-        for (Map.Entry<String, Config.InnerValuesForRegexps> el : currentConfig.getRegexps().entrySet()) {
-            System.out.printf("{%1$: %2$, %3$, %4$}",   el.getKey(),
-                                                        el.getValue().getMethodName(),
-                                                        el.getValue().getMethodBody(),
-                                                        el.getValue().getSearchTarget());
+        for (Config.InnerValuesForRegexps el : currentConfig.getRegexps()) {
+            System.out.printf("\n Method name: %s,\n Method Body:  %s,\n SearchTarget: %s,\n Payload file path: %s\n", 
+            el.getMethodName(),
+            el.getMethodBody(),
+            el.getSearchTarget(),
+            currentConfig.getPayloadFilePath());
         }
         
     }

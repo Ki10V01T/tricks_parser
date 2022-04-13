@@ -1,17 +1,19 @@
 package ru.ki10v01t.service;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-
 public class Config {    
-    private HashMap <String, InnerValuesForRegexps> regexps;
+    private ArrayList<InnerValuesForRegexps> regexps =  new ArrayList<InnerValuesForRegexps>();
     private String payloadFilePath;
 
     class InnerValuesForRegexps {
         private String methodName, methodBody, searchTarget;
+
+        public InnerValuesForRegexps(){
+        }
 
         @JsonSetter("methodName")
         public void setMethodName (String input) {
@@ -45,8 +47,8 @@ public class Config {
     }
 
     @JsonSetter("regexps")
-    public void setRegexps(String key, InnerValuesForRegexps value) {
-        this.regexps.put(key, value);
+    public void setRegexps(InnerValuesForRegexps value) {
+        this.regexps.add(value);
     }
 
     @JsonSetter("payloadFilePath")
@@ -54,8 +56,8 @@ public class Config {
         this.payloadFilePath = input;
     }
 
-    @JsonSetter("regexps")
-    public HashMap<String, InnerValuesForRegexps> getRegexps() {
+    @JsonGetter("regexps")
+    public ArrayList<InnerValuesForRegexps> getRegexps() {
         return this.regexps;
     }
 

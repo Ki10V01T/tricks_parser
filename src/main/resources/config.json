@@ -4,5 +4,5 @@
         "methodBody"    : "[\\s\\S]*?^\\}",
         "searchTarget"  : "w_download_to [^\"]\\w* htt[\\S]* [\\S]*"
     },
-    "payloadFilePath"     : ""
+    "payloadFilePath"     : "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/winetricks"
 }
