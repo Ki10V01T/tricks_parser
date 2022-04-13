@@ -45,11 +45,11 @@ public class Config {
     }
 
     @JsonSetter("regexps")
-    public void setRegexps(HashMap<String, InnerValuesForRegexps> input) {
-        this.regexps = input;
+    public void setRegexps(String key, InnerValuesForRegexps value) {
+        this.regexps.put(key, value);
     }
 
-    @JsonSetter("inputFileAbsolutePath")
+    @JsonSetter("payloadFilePath")
     public void setPayloadFilePath(String input) {
         this.payloadFilePath = input;
     }
@@ -59,7 +59,7 @@ public class Config {
         return this.regexps;
     }
 
-    @JsonGetter("inputFileAbsolutePath")
+    @JsonGetter("payloadFilePath")
     public String getPayloadFilePath() {
         return this.payloadFilePath;
     }
