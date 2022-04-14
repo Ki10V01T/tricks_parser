@@ -5,10 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 import ru.ki10v01t.service.ConfigManager;
-import ru.ki10v01t.service.Package;
+import ru.ki10v01t.service.Config;
 
 /**
  * Working mode for Parser
@@ -28,13 +31,14 @@ public class Parser {
         
     }
 
+
 /**
  * Parses input file, in according with selected mode
  * @see MODE
  * @param filepath - the absolute path to file in filesystem. If selected mode is CONFIG, checks: whether the value is non-zero  
  * @param mode
  */
-    public static void readFile(String configFilePath, MODE mode) {
+    public void readConfig(String configFilePath) {
         File configFile = null;
         try {
             if (configFilePath == null || configFilePath == "") {
@@ -51,41 +55,88 @@ public class Parser {
 
         try (FileReader fr = new FileReader(configFile);   
             BufferedReader bufReader = new BufferedReader(fr);) 
-        {
-            switch (mode) {
-                case CONFIG:
-                    ConfigManager.createConfig(configFile);
-                    ConfigManager.printConfig();
-                    break;
-                case PAYLOAD:
-                    doPayloadProcessing(bufReader);
-                    break;
-                default:
-                    throw new ParserConfigurationException("Задан неправильный режим работы парсера");
-            }
+        {            
+            ConfigManager.createConfig(configFile);
+            ConfigManager.printConfig();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    } 
+
+    public void readPayloadFile() {        
+        File payloadFile = new File(ConfigManager.getConfig().getPayloadFilePath());
+        
+        try {
+            if (!ConfigManager.checkingForConfigExistence()) {
+                throw new ParserConfigurationException("Конфиг не задан");
+            }   
+        
+            if (!payloadFile.exists()) {
+                throw new ParserConfigurationException("Файл для парсинга не найден");
+            }
+
+            parseFile(readFromFileToString(payloadFile)); 
+
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
             e.getMessage();
         }
     }
 
-    private static void doPayloadProcessing(BufferedReader bufReader) throws IOException, ParserConfigurationException {
-        if (ConfigManager.getConfig() == null) {
-            throw new ParserConfigurationException("Конфиг не задан");
-        }
+    private String readFromFileToString(File payloadFile) {
+        String fileContents = null;
         String line = null;
-        File payloadFile = null;
-        int lineNumber=0;
-        ArrayList<Package> pkgArray = new ArrayList<Package>();
-        while (line != null) {
-            
-            //pkgArray.add(e)
-            line = bufReader.readLine();   
-            lineNumber++;         
+        try(FileReader payloadFr = new FileReader(payloadFile);
+            BufferedReader bufReader = new BufferedReader(payloadFr);) {
+            fileContents = line = (bufReader.readLine() + "\n");   
+            while (line != null) {
+                line = bufReader.readLine();
+                fileContents += (line + "\n");       
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return fileContents;
+    }
+
+    private void parseFile(String fileContents) throws ParserConfigurationException {
+        if (fileContents.equals("") || fileContents.equals(null)) {
+            throw new ParserConfigurationException("Файл для парсинга пуст");
+        }
+
+        //System.out.println(fileContents);
+        //System.exit(0);
+
+        Pattern methodNamePattern = Pattern.compile(ConfigManager
+                                                                .getConfig()
+                                                                .getRegexps()
+                                                                .get(0)
+                                                                .getMethodName());
+        Pattern methodBodyPattern = Pattern.compile(ConfigManager
+                                                                .getConfig()
+                                                                .getRegexps()
+                                                                .get(0)
+                                                                .getMethodBody());
+        Pattern searchTargetPattern = Pattern.compile(ConfigManager
+                                                                .getConfig()
+                                                                .getRegexps()
+                                                                .get(0)
+                                                                .getSearchTarget());                  
+        
+         
+        ArrayList<Matcher> matchers = new ArrayList<Matcher>(Arrays.asList(
+                                                            methodNamePattern.matcher(fileContents),
+                                                            methodBodyPattern.matcher(fileContents),
+                                                            searchTargetPattern.matcher(fileContents)));
+        Integer inj=0;
+        for (Matcher m : matchers) {
+            inj=0;
+            while (m.find()) {
+                inj++;
+                System.out.println(fileContents.substring(m.start(), m.end()));
+            }
         }
     }
 }

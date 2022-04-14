@@ -9,7 +9,7 @@ public class Config {
     private ArrayList<InnerValuesForRegexps> regexps =  new ArrayList<InnerValuesForRegexps>();
     private String payloadFilePath;
 
-    class InnerValuesForRegexps {
+    public class InnerValuesForRegexps {
         private String methodName, methodBody, searchTarget;
 
         public InnerValuesForRegexps(){

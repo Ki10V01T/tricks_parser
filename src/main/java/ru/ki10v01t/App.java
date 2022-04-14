@@ -4,7 +4,8 @@ public class App
 {
     public static void main( String[] args )
     {
-        //Parser parser = new Parser();
-        Parser.readFile("", MODE.CONFIG);
+        Parser parser = new Parser();
+        parser.readConfig("");
+        parser.readPayloadFile();
     }
 }
