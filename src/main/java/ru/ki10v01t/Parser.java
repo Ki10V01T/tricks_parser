@@ -1,6 +1,7 @@
 package ru.ki10v01t;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,6 +11,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
+
+import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match;
+
 import ru.ki10v01t.service.ConfigManager;
 import ru.ki10v01t.service.Config;
 
@@ -65,7 +69,7 @@ public class Parser {
         }
     } 
 
-    public void readPayloadFile() {        
+    public void startProcessingPayloadFile() {        
         File payloadFile = new File(ConfigManager.getConfig().getPayloadFilePath());
         
         try {
@@ -78,11 +82,31 @@ public class Parser {
             }
 
             parseFile(readFromFileToString(payloadFile)); 
-
+            //parseFile(readFromFileToStringFIN(payloadFile)); 
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
             e.getMessage();
         }
+    }
+
+    private String readFromFileToStringFIN(File payloadFile) {
+        String fileContents = null;
+        String line = null;
+        try(//FileReader payloadFr = new FileReader(payloadFile);
+        FileInputStream payloadFr=new FileInputStream(ConfigManager.getConfig().getPayloadFilePath());
+            //BufferedReader bufReader = new BufferedReader(payloadFr);
+            ) {
+            int i = -1; 
+            //fileContents = payloadFr.read();
+            while ((i=payloadFr.read())!=-1) {
+                //line = bufReader.readLine();
+                fileContents += (char)i;    
+                //fileContents += line;    
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return fileContents;
     }
 
     private String readFromFileToString(File payloadFile) {
@@ -91,9 +115,11 @@ public class Parser {
         try(FileReader payloadFr = new FileReader(payloadFile);
             BufferedReader bufReader = new BufferedReader(payloadFr);) {
             fileContents = line = (bufReader.readLine() + "\n");   
+            //fileContents = line = (bufReader.readLine());  
             while (line != null) {
                 line = bufReader.readLine();
-                fileContents += (line + "\n");       
+                fileContents += (line + "\n");    
+                //fileContents += line;    
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -110,10 +136,15 @@ public class Parser {
         //System.exit(0);
 
         Pattern methodNamePattern = Pattern.compile(ConfigManager
+        .getConfig()
+        .getRegexps()
+        .get(0)
+        .getSearchTarget());
+        /*Pattern methodNamePattern = Pattern.compile(ConfigManager
                                                                 .getConfig()
                                                                 .getRegexps()
                                                                 .get(0)
-                                                                .getMethodName());
+                                                                .getMethodName());*/
         Pattern methodBodyPattern = Pattern.compile(ConfigManager
                                                                 .getConfig()
                                                                 .getRegexps()
@@ -126,17 +157,38 @@ public class Parser {
                                                                 .getSearchTarget());                  
         
          
-        ArrayList<Matcher> matchers = new ArrayList<Matcher>(Arrays.asList(
+        /*ArrayList<Matcher> matchers = new ArrayList<Matcher>(Arrays.asList(
                                                             methodNamePattern.matcher(fileContents),
                                                             methodBodyPattern.matcher(fileContents),
                                                             searchTargetPattern.matcher(fileContents)));
+        
+        */
+        Matcher mNameMatcher = methodNamePattern.matcher(fileContents);
+        Matcher mBodyMatcher = methodBodyPattern.matcher(fileContents);
+        Matcher mSearchMatcher = searchTargetPattern.matcher(fileContents);
         Integer inj=0;
-        for (Matcher m : matchers) {
+
+        while (mNameMatcher.find()) {
+            //inj++;
+            String res = fileContents.substring(mNameMatcher.start(), mNameMatcher.end());
+            System.out.println(res);
+        } 
+
+        /*while (mBodyMatcher.find()) {
+            System.out.println(fileContents.substring(mBodyMatcher.start(), mBodyMatcher.end()));
+        }
+
+        while (mSearchMatcher.find()) {
+            System.out.println(fileContents.substring(mSearchMatcher.start(), mSearchMatcher.end()));
+        }*/
+
+
+        /*for (Matcher m : matchers) {
             inj=0;
             while (m.find()) {
                 inj++;
                 System.out.println(fileContents.substring(m.start(), m.end()));
             }
-        }
+        }*/
     }
 }

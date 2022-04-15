@@ -6,6 +6,6 @@ public class App
     {
         Parser parser = new Parser();
         parser.readConfig("");
-        parser.readPayloadFile();
+        parser.startProcessingPayloadFile();
     }
 }
