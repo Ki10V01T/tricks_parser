@@ -45,10 +45,10 @@ public class ConfigManager {
 
     public static void printConfig() {
         for (Config.InnerValuesForRegexps el : currentConfig.getRegexps()) {
-            System.out.printf("\n Method name: %s,\n Method Body:  %s,\n SearchTarget: %s,\n Payload file path: %s\n", 
+            System.out.printf("\n Method name: %s,\n Method Name and Body:  %s,\n SearchTargets: %s,\n Payload file path: %s\n", 
             el.getMethodName(),
-            el.getMethodBody(),
-            el.getSearchTarget(),
+            el.getMethodNameAndBody(),
+            el.printSearchTargetsWithArgs(),
             currentConfig.getPayloadFilePath());
         }
         

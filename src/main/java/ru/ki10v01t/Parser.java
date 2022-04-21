@@ -6,16 +6,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match;
-
 import ru.ki10v01t.service.ConfigManager;
-import ru.ki10v01t.service.Config;
 
 /**
  * Working mode for Parser
@@ -38,7 +34,6 @@ public class Parser {
 
 /**
  * Parses input file, in according with selected mode
- * @see MODE
  * @param filepath - the absolute path to file in filesystem. If selected mode is CONFIG, checks: whether the value is non-zero  
  * @param mode
  */
@@ -91,7 +86,6 @@ public class Parser {
 
     private String readFromFileToStringFIN(File payloadFile) {
         String fileContents = null;
-        String line = null;
         try(//FileReader payloadFr = new FileReader(payloadFile);
         FileInputStream payloadFr=new FileInputStream(ConfigManager.getConfig().getPayloadFilePath());
             //BufferedReader bufReader = new BufferedReader(payloadFr);
@@ -127,68 +121,57 @@ public class Parser {
         return fileContents;
     }
 
+    private ArrayList<Pattern> createPatternsFromConfig() {
+        ArrayList<Pattern> patterns = new ArrayList<>();
+        patterns.add(Pattern.compile(ConfigManager
+                                                .getConfig()
+                                                .getRegexps()
+                                                .get(0)
+                                                .getMethodNameAndBody(),
+                                                Pattern.MULTILINE));
+
+        for (String el : ConfigManager
+                                    .getConfig()
+                                    .getRegexps()
+                                    .get(0)
+                                    .getSearchTarget()) {
+            patterns.add(Pattern.compile(el, Pattern.MULTILINE));
+        }
+        
+        patterns.add(Pattern.compile(ConfigManager
+                                                .getConfig()
+                                                .getRegexps()
+                                                .get(0)
+                                                .getMethodName(),
+                                                Pattern.MULTILINE));
+        
+        return patterns;
+    }
+
+    private ArrayList<Matcher> createMatchersFromPatterns(ArrayList<Pattern> patterns, String fileContents) {
+        ArrayList<Matcher> matchers = new ArrayList<>();
+        for (Pattern el : patterns) {
+            matchers.add(el.matcher(fileContents));
+        }
+        return matchers;
+    }
+
     private void parseFile(String fileContents) throws ParserConfigurationException {
         if (fileContents.equals("") || fileContents.equals(null)) {
             throw new ParserConfigurationException("Файл для парсинга пуст");
         }
 
-        //System.out.println(fileContents);
-        //System.exit(0);
-
-        Pattern methodNamePattern = Pattern.compile(ConfigManager
-        .getConfig()
-        .getRegexps()
-        .get(0)
-        .getSearchTarget());
-        /*Pattern methodNamePattern = Pattern.compile(ConfigManager
-                                                                .getConfig()
-                                                                .getRegexps()
-                                                                .get(0)
-                                                                .getMethodName());*/
-        Pattern methodBodyPattern = Pattern.compile(ConfigManager
-                                                                .getConfig()
-                                                                .getRegexps()
-                                                                .get(0)
-                                                                .getMethodBody());
-        Pattern searchTargetPattern = Pattern.compile(ConfigManager
-                                                                .getConfig()
-                                                                .getRegexps()
-                                                                .get(0)
-                                                                .getSearchTarget());                  
+        ArrayList<Pattern> patterns = createPatternsFromConfig();               
+        ArrayList<Matcher> matchers = createMatchersFromPatterns(patterns, fileContents);
         
-         
-        /*ArrayList<Matcher> matchers = new ArrayList<Matcher>(Arrays.asList(
-                                                            methodNamePattern.matcher(fileContents),
-                                                            methodBodyPattern.matcher(fileContents),
-                                                            searchTargetPattern.matcher(fileContents)));
-        
-        */
-        Matcher mNameMatcher = methodNamePattern.matcher(fileContents);
-        Matcher mBodyMatcher = methodBodyPattern.matcher(fileContents);
-        Matcher mSearchMatcher = searchTargetPattern.matcher(fileContents);
         Integer inj=0;
 
-        while (mNameMatcher.find()) {
-            //inj++;
-            String res = fileContents.substring(mNameMatcher.start(), mNameMatcher.end());
-            System.out.println(res);
-        } 
-
-        /*while (mBodyMatcher.find()) {
-            System.out.println(fileContents.substring(mBodyMatcher.start(), mBodyMatcher.end()));
-        }
-
-        while (mSearchMatcher.find()) {
-            System.out.println(fileContents.substring(mSearchMatcher.start(), mSearchMatcher.end()));
-        }*/
-
-
-        /*for (Matcher m : matchers) {
+        for (Matcher m : matchers) {
             inj=0;
             while (m.find()) {
                 inj++;
                 System.out.println(fileContents.substring(m.start(), m.end()));
             }
-        }*/
+        }
     }
 }
