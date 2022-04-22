@@ -3,34 +3,42 @@ package ru.ki10v01t.service;
 import java.util.ArrayList;
 
 public class Method extends LineNumber {
+    private String methodNameAndBody;
     private String methodName;
     private Integer position;
-    private ArrayList<String> methodBody;
+    private String methodBody;
     private String[] inputArgs;
 
     public Method() {
-        methodBody = new ArrayList<>();
         inputArgs = new String[4];
     }
 
-    public void setMethodBody(ArrayList<String> input) {
+    public void setMethodBody(String input) {
         this.methodBody = input;
     }
 
-    public ArrayList<String> getRefArrayMethodBody() {
+    public void setMethodNameAndBody(String input) {
+        this.methodNameAndBody = input;
+    }
+
+    public String getRefArrayMethodBody() {
         return this.methodBody;
     }
 
-    public String getMethodBodyLineByIndex (Integer index) {
+    /*public String getMethodBodyLineByIndex (Integer index) {
         if (index < 0 || index >= this.methodBody.size()) {
             System.out.println("<ERROR> <Method.setInputArgs>: Индекс выходит за границы массива");
             return "";
         }
         return this.methodBody.get(index);
-    }
+    }*/
 
     public void setMethodName(String input) {
         this.methodName = input;
+    }
+
+    public String getMethodNameAndBody() {
+        return this.methodNameAndBody;
     }
 
     public String getMethodName() {

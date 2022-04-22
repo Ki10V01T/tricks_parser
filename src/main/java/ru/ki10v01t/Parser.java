@@ -5,13 +5,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import ru.ki10v01t.service.ConfigManager;
+import ru.ki10v01t.service.Method;
+import ru.ki10v01t.service.Package;
 
 /**
  * Working mode for Parser
@@ -121,39 +126,54 @@ public class Parser {
         return fileContents;
     }
 
-    private ArrayList<Pattern> createPatternsFromConfig() {
-        ArrayList<Pattern> patterns = new ArrayList<>();
-        patterns.add(Pattern.compile(ConfigManager
-                                                .getConfig()
-                                                .getRegexps()
-                                                .get(0)
-                                                .getMethodNameAndBody(),
-                                                Pattern.MULTILINE));
+    private HashMap<String, ArrayList<Pattern>> createPatternsFromConfig() {
+        HashMap<String, ArrayList<Pattern>> allPatterns = new HashMap<>();
 
+        allPatterns.put("MethodName", (ArrayList<Pattern>)Arrays.asList(
+            Pattern.compile(
+                ConfigManager.getConfig()
+                .getRegexps()
+                .get(0)
+                .getMethodName(), Pattern.MULTILINE)
+        ));
+
+        allPatterns.put("MethodNameAndBody", (ArrayList<Pattern>)Arrays.asList(
+            Pattern.compile(
+                ConfigManager.getConfig()
+                .getRegexps()
+                .get(0)
+                .getMethodNameAndBody(), Pattern.MULTILINE)
+        ));
+
+        allPatterns.put("SearchTargets", new ArrayList<Pattern>());
         for (String el : ConfigManager
                                     .getConfig()
                                     .getRegexps()
                                     .get(0)
                                     .getSearchTarget()) {
-            patterns.add(Pattern.compile(el, Pattern.MULTILINE));
-        }
+            allPatterns.get("SearchTargets").add( 
+                Pattern.compile(
+                ConfigManager.getConfig()
+                .getRegexps()
+                .get(0)
+                .getMethodNameAndBody(),Pattern.MULTILINE)
+            );
+        } 
         
-        patterns.add(Pattern.compile(ConfigManager
-                                                .getConfig()
-                                                .getRegexps()
-                                                .get(0)
-                                                .getMethodName(),
-                                                Pattern.MULTILINE));
-        
-        return patterns;
+        return allPatterns;
     }
 
-    private ArrayList<Matcher> createMatchersFromPatterns(ArrayList<Pattern> patterns, String fileContents) {
-        ArrayList<Matcher> matchers = new ArrayList<>();
-        for (Pattern el : patterns) {
-            matchers.add(el.matcher(fileContents));
+    private HashMap<String, ArrayList<Matcher>> createMatchers(ArrayList<Pattern> patterns, String fileContents) {
+        HashMap<String, ArrayList<Matcher>> methodMatchers = new HashMap<String, ArrayList<Matcher>>();
+        ArrayList<Matcher> matchers = new ArrayList<>(); 
+        methodMatchers.put("MethodName", (ArrayList<Matcher>)Arrays.asList(patterns.get(0).matcher(fileContents)));
+        methodMatchers.put("MethodNameAndBody", (ArrayList<Matcher>)Arrays.asList(patterns.get(1).matcher(fileContents)));
+        for (int i=2; i<patterns.size(); i++) {
+            matchers.add(patterns.get(i).matcher())
+            methodMatchers.put("SearchTargets", )
         }
-        return matchers;
+
+       
     }
 
     private void parseFile(String fileContents) throws ParserConfigurationException {
@@ -161,17 +181,39 @@ public class Parser {
             throw new ParserConfigurationException("Файл для парсинга пуст");
         }
 
-        ArrayList<Pattern> patterns = createPatternsFromConfig();               
-        ArrayList<Matcher> matchers = createMatchersFromPatterns(patterns, fileContents);
+        HashMap<String, ArrayList<Pattern>> patterns = createPatternsFromConfig(); 
+
+        // Matcher for searching method names and bodies  
+        Matcher fileMatcher = patterns.get(0).matcher(fileContents);          
         
+        HashMap<String, ArrayList<Matcher>> methodMatchers = createMatchers(patterns);
+        
+        methodMatchers.put("SearchTargets", (ArrayList<Matcher>)Arrays.asList(patterns.get(0).matcher(fileContents)))
+        ArrayList<Method> methods = new ArrayList<Method>();
+        ArrayList<Package> packages = new ArrayList<Package>();
         Integer inj=0;
 
-        for (Matcher m : matchers) {
-            inj=0;
-            while (m.find()) {
-                inj++;
-                System.out.println(fileContents.substring(m.start(), m.end()));
-            }
+        // Fills arrays by method names and bodies
+        while (fileMatcher.find()) {
+            Method method = new Method();
+            method.setMethodNameAndBody(fileContents.substring(fileMatcher.start(), fileMatcher.end()));
+            methods.add(method);
+            methodMatchers.add(Methodpatterns.get(0).matcher(method.getMethodNameAndBody()));
         }
+        
+        for (Matcher methodMatcher : methodMatchers)
+
+
+
+                matchers.add(createMatcherFromPattern(patterns.get(0), fileContents));                    
+            break;
+            case 1:
+                while (m.find()) {
+                    System.out.println(fileContents.substring(m.start(), m.end()));
+                }
+            case 2:
+                    
+        }
+        inj++;            
     }
 }
