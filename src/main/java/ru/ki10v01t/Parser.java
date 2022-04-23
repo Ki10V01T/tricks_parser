@@ -6,14 +6,17 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import ru.ki10v01t.service.Config;
 import ru.ki10v01t.service.ConfigManager;
 import ru.ki10v01t.service.Method;
 import ru.ki10v01t.service.Package;
@@ -62,8 +65,6 @@ public class Parser {
         {            
             ConfigManager.createConfig(configFile);
             ConfigManager.printConfig();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -87,25 +88,6 @@ public class Parser {
             e.printStackTrace();
             e.getMessage();
         }
-    }
-
-    private String readFromFileToStringFIN(File payloadFile) {
-        String fileContents = null;
-        try(//FileReader payloadFr = new FileReader(payloadFile);
-        FileInputStream payloadFr=new FileInputStream(ConfigManager.getConfig().getPayloadFilePath());
-            //BufferedReader bufReader = new BufferedReader(payloadFr);
-            ) {
-            int i = -1; 
-            //fileContents = payloadFr.read();
-            while ((i=payloadFr.read())!=-1) {
-                //line = bufReader.readLine();
-                fileContents += (char)i;    
-                //fileContents += line;    
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return fileContents;
     }
 
     private String readFromFileToString(File payloadFile) {
@@ -145,13 +127,28 @@ public class Parser {
                 .getMethodNameAndBody(), Pattern.MULTILINE)
         ));
 
-        allPatterns.put("SearchTargets", new ArrayList<Pattern>());
+        allPatterns.put("SearchTargetsWdownload", new ArrayList<Pattern>());
+        allPatterns.put("SearchTargetsWdownloadTo", new ArrayList<Pattern>());
         for (String el : ConfigManager
                                     .getConfig()
                                     .getRegexps()
                                     .get(0)
-                                    .getSearchTarget()) {
-            allPatterns.get("SearchTargets").add( 
+                                    .getSearchTargetsWdownload()) {
+            allPatterns.get("SearchTargetsWdownload").add( 
+                Pattern.compile(
+                ConfigManager.getConfig()
+                .getRegexps()
+                .get(0)
+                .getMethodNameAndBody(),Pattern.MULTILINE)
+            );
+        }
+
+        for (String el : ConfigManager
+                                    .getConfig()
+                                    .getRegexps()
+                                    .get(0)
+                                    .getSearchTargetsWdownloadTo()) {
+            allPatterns.get("SearchTargetsWdownloadTo").add( 
                 Pattern.compile(
                 ConfigManager.getConfig()
                 .getRegexps()
@@ -163,43 +160,41 @@ public class Parser {
         return allPatterns;
     }
 
-    private HashMap<String, ArrayList<Matcher>> createMatchers(ArrayList<Pattern> patterns, String fileContents) {
-        HashMap<String, ArrayList<Matcher>> methodMatchers = new HashMap<String, ArrayList<Matcher>>();
-        ArrayList<Matcher> matchers = new ArrayList<>(); 
-        methodMatchers.put("MethodName", (ArrayList<Matcher>)Arrays.asList(patterns.get(0).matcher(fileContents)));
-        methodMatchers.put("MethodNameAndBody", (ArrayList<Matcher>)Arrays.asList(patterns.get(1).matcher(fileContents)));
-        for (int i=2; i<patterns.size(); i++) {
-            matchers.add(patterns.get(i).matcher())
-            methodMatchers.put("SearchTargets", )
-        }
+    private HashMap<String, ?> initMap(HashMap<String, ?> input) {
+        
 
-       
-    }
+    } 
 
     private void parseFile(String fileContents) throws ParserConfigurationException {
         if (fileContents.equals("") || fileContents.equals(null)) {
             throw new ParserConfigurationException("Файл для парсинга пуст");
         }
 
-        HashMap<String, ArrayList<Pattern>> patterns = createPatternsFromConfig(); 
+        HashMap<String, ArrayList<Pattern>> patterns = createPatternsFromConfig();   
 
-        // Matcher for searching method names and bodies  
-        Matcher fileMatcher = patterns.get(0).matcher(fileContents);          
+        Matcher initialFileMatcher = patterns.get("MethodNameAndBody").get(0).matcher(fileContents)
         
-        HashMap<String, ArrayList<Matcher>> methodMatchers = createMatchers(patterns);
-        
-        methodMatchers.put("SearchTargets", (ArrayList<Matcher>)Arrays.asList(patterns.get(0).matcher(fileContents)))
+        HashMap<String, ArrayList<Matcher>> matchers = new HashMap<String, ArrayList<Matcher>>();
+
+        matchers.putAll(Map.of("SearchTargetsWdownload", new ArrayList<Matcher>(),
+         "SearchTargetsWdownloadTo", new ArrayList<Matcher>()));
+
         ArrayList<Method> methods = new ArrayList<Method>();
         ArrayList<Package> packages = new ArrayList<Package>();
+        
+        String resultOfFind = null;
         Integer inj=0;
 
-        // Fills arrays by method names and bodies
-        while (fileMatcher.find()) {
-            Method method = new Method();
-            method.setMethodNameAndBody(fileContents.substring(fileMatcher.start(), fileMatcher.end()));
-            methods.add(method);
-            methodMatchers.add(Methodpatterns.get(0).matcher(method.getMethodNameAndBody()));
+        // Fills arrays by method names and bodies from target file
+        while (initialFileMatcher.find()) {
+            matchers.get("SearchTargetsWdownload")
+                .add(patterns.get("SearchTargetsWdownload")
+                .get(0)
+                    .matcher((fileContents.substring(initialFileMatcher.start(), initialFileMatcher.end())))));
+            
         }
+
+       method.getMethodNameAndBody()));
         
         for (Matcher methodMatcher : methodMatchers)
 

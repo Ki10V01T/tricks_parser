@@ -8,17 +8,9 @@ public class Config {
     private ArrayList<InnerValuesForRegexps> regexps;
     private String payloadFilePath;
 
-    public Config() {
-        this.regexps = new ArrayList<InnerValuesForRegexps>();
-    }
-
     public class InnerValuesForRegexps {
         private String methodName, methodNameAndBody;
-        private ArrayList<String> searchTargets;
-
-        public InnerValuesForRegexps() {
-            this.searchTargets = new ArrayList<String>();
-        }
+        private ArrayList<String> searchTargetsWdownload, searchTargetsWdownloadTo;
 
         @JsonSetter("methodName")
         public void setMethodName (String input) {
@@ -30,9 +22,14 @@ public class Config {
             this.methodNameAndBody = input;
         }
 
-        @JsonSetter("searchTargetsWithArgs")
-        public void setSearchTarget (ArrayList<String> input) {
-            this.searchTargets = input;
+        @JsonSetter("searchTargetsWdownload")
+        public void setSearchTargetsWdownload (ArrayList<String> input) {
+            this.searchTargetsWdownload = input;
+        }
+
+        @JsonSetter("searchTargetsWdownloadTo")
+        public void setSearchTargetsWdownloadTo (ArrayList<String> input) {
+            this.searchTargetsWdownloadTo = input;
         }
 
         @JsonGetter("methodName")
@@ -45,29 +42,28 @@ public class Config {
             return this.methodNameAndBody;
         }
 
-        @JsonGetter("searchTargetsWithArgs")
-        public ArrayList<String> getSearchTarget() {
-            return this.searchTargets;
+        @JsonGetter("searchTargetsWdownload")
+        public ArrayList<String> getSearchTargetsWdownload() {
+            return this.searchTargetsWdownload;
         }
 
-        public String getSearchTargetByIndex(Integer index) {
-            if (index >= this.searchTargets.size()) {
-                return searchTargets.get(index);
+        @JsonGetter("searchTargetsWdownloadTo")
+        public ArrayList<String> getSearchTargetsWdownloadTo() {
+            return this.searchTargetsWdownloadTo;
+        }
+
+        public String getSearchTargetByIndex(ArrayList<String> inputArray, Integer index) throws ArrayIndexOutOfBoundsException {
+            if (index >= inputArray.size()) {
+                return inputArray.get(index);
             }
             else {
-                try {
-                    throw new ArrayIndexOutOfBoundsException("Выход за границы массива");
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    e.printStackTrace();
-                    e.getMessage();
-                } finally {
-                    return "";
+                throw new ArrayIndexOutOfBoundsException("Выход за границы массива");
                 }
             }
         }
 
-        public String printSearchTargetsWithArgs () {
-            return String.join(", ", this.searchTargets);
+        public String printSearchTargetsWithArgs (ArrayList<String> inputArray) {
+            return String.join(", ", inputArray);
         }
     }
 

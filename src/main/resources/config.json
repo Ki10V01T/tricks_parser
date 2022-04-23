@@ -1,15 +1,18 @@
 {
     "regexps": {
-        "methodName"            : "^\\S+\\(\\)\\n",
-        "methodNameAndBody"     : "^\\S+\\(\\)\\n[\\s\\S]*?^\\}",        
-        "searchTargetsWithArgs" : [ 
+        "methodName"                : "^\\S+\\(\\)\\n",
+        "methodNameAndBody"         : "^\\S+\\(\\)\\n[\\s\\S]*?^\\}",        
+        "searchTargetsWdownload"    : [ 
+            "(^[\\s]{3,})w_download[\\s]", 
             "(^[\\s]{3,})w_download [^\\$][\\S]*\\n",
             "(^[\\s]{3,})w_download [^\\$][\\S]* [^\\$][\\S]*\\n",
             "(^[\\s]{3,})w_download [^\\$][\\S]* [^\\$][\\S]* [^\\$][\\S]*\\n"
         ],
-        "w_downloadSpecifiers"  : [
-            
+        "searchTargetsWdownloadTo"  : [
+            "(^[\\s]{3,})w_download_to[\\s]",
+            "(^[\\s]{3,})w_download_to [^\\$][\\S]* [^\\$][\\S]*\\n",
+            "(^[\\s]{3,})w_download_to [^\\$][\\S]* [^\\$][\\S]* [^\\$][\\S]*\\n"
         ]
     },
-    "payloadFilePath"           : "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/winetricks"
+    "payloadFilePath" : "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/winetricks"
 }
