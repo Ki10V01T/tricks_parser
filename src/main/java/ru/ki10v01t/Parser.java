@@ -108,16 +108,20 @@ public class Parser {
         return fileContents;
     }
 
-    private HashMap<String, ArrayList<Pattern>> createPatternsFromConfig() {
-        HashMap<String, ArrayList<Pattern>> allPatterns = new HashMap<>();
-
-        allPatterns.put("MethodName", (ArrayList<Pattern>)Arrays.asList(
-            Pattern.compile(
+    private void fillsPatternsFromConfig(HashMap<String, ArrayList<Pattern>> allPatterns) {
+        for (Map.Entry<String, ArrayList<Pattern>> el : allPatterns.entrySet()) {
+            switch (el.getKey()) {
+                case "MethodName" :
+                    break;
+                case ""
+            }
+        }
+        allPatterns.get("MethodName").add(Pattern.compile(
                 ConfigManager.getConfig()
                 .getRegexps()
                 .get(0)
                 .getMethodName(), Pattern.MULTILINE)
-        ));
+        );
 
         allPatterns.put("MethodNameAndBody", (ArrayList<Pattern>)Arrays.asList(
             Pattern.compile(
@@ -160,10 +164,15 @@ public class Parser {
         return allPatterns;
     }
 
-    private HashMap<String, ?> initMap(HashMap<String, ?> input) {
-        
+    private <T> HashMap<String, ArrayList<T>> initMap() {
+        HashMap <String, ArrayList<T>> resultMap = new HashMap<>();
 
-    } 
+        for (String field : ConfigManager.getDeclaredInnerValuesFields()) {
+            resultMap.put(field, new ArrayList<T>());
+        }
+
+        return resultMap;
+    }
 
     private void parseFile(String fileContents) throws ParserConfigurationException {
         if (fileContents.equals("") || fileContents.equals(null)) {

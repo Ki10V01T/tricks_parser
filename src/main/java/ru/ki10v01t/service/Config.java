@@ -8,7 +8,7 @@ public class Config {
     private ArrayList<InnerValuesForRegexps> regexps;
     private String payloadFilePath;
 
-    public class InnerValuesForRegexps {
+    public class InnerValuesForRegexps extends Accessor <T>{
         private String methodName, methodNameAndBody;
         private ArrayList<String> searchTargetsWdownload, searchTargetsWdownloadTo;
 
@@ -58,7 +58,6 @@ public class Config {
             }
             else {
                 throw new ArrayIndexOutOfBoundsException("Выход за границы массива");
-                }
             }
         }
 
