@@ -8,7 +8,7 @@ public class Config {
     private ArrayList<InnerValuesForRegexps> regexps;
     private String payloadFilePath;
 
-    public class InnerValuesForRegexps extends Accessor <T>{
+    public class InnerValuesForRegexps {
         private String methodName, methodNameAndBody;
         private ArrayList<String> searchTargetsWdownload, searchTargetsWdownloadTo;
 

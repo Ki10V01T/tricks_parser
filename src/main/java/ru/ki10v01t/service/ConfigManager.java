@@ -14,7 +14,7 @@ public class ConfigManager {
     private static ArrayList<String> configVars = null;
 
     public static void editConfig(File file) {
-        createConfig(file);
+        //createConfig(file);
     }
     
     private static void setDeclaredInnerValuesFields(InnerValuesForRegexps input) {
@@ -32,7 +32,7 @@ public class ConfigManager {
         return configVars;
     }
 
-    public static void createConfig(File file) {
+    public static void createConfig (File file) throws IOException {
         if (objectMapper == null) {
             objectMapper = new ObjectMapper();
         }

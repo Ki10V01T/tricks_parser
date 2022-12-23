@@ -49,12 +49,12 @@ public class Parser {
         File configFile = null;
         try {
             if (configFilePath == null || configFilePath == "") {
-                configFilePath = "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/config.json";
+                configFilePath = System.getProperty("user.dir") + "/src/main/resources/config.json";
             }
             configFile = new File(configFilePath);
             if (!configFile.exists()) {
                 System.out.println("Запрашиваемый конфигурационный файл не найден. Используется стандартный");
-                configFilePath = "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/config.json";
+                configFilePath = System.getProperty("user.dir") + "/src/main/resources/config.json";
             } 
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -82,7 +82,8 @@ public class Parser {
                 throw new ParserConfigurationException("Файл для парсинга не найден");
             }
 
-            parseFile(readFromFileToString(payloadFile)); 
+            readFromFileToString(payloadFile);
+            //parseFile(readFromFileToString(payloadFile)); 
             //parseFile(readFromFileToStringFIN(payloadFile)); 
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
@@ -90,6 +91,9 @@ public class Parser {
         }
     }
 
+    /*
+     * TODO: Посмотреть производительность.
+     */
     private String readFromFileToString(File payloadFile) {
         String fileContents = null;
         String line = null;
@@ -108,12 +112,13 @@ public class Parser {
         return fileContents;
     }
 
+    // TODO: Автоматизировать выборку полей мапы из конфига
     private void fillsPatternsFromConfig(HashMap<String, ArrayList<Pattern>> allPatterns) {
         for (Map.Entry<String, ArrayList<Pattern>> el : allPatterns.entrySet()) {
             switch (el.getKey()) {
                 case "MethodName" :
                     break;
-                case ""
+                //case ""
             }
         }
         allPatterns.get("MethodName").add(Pattern.compile(
@@ -161,7 +166,7 @@ public class Parser {
             );
         } 
         
-        return allPatterns;
+        //return allPatterns;
     }
 
     private <T> HashMap<String, ArrayList<T>> initMap() {
@@ -179,9 +184,9 @@ public class Parser {
             throw new ParserConfigurationException("Файл для парсинга пуст");
         }
 
-        HashMap<String, ArrayList<Pattern>> patterns = createPatternsFromConfig();   
+        HashMap<String, ArrayList<Pattern>> patterns = fillsPatternsFromConfig();   
 
-        Matcher initialFileMatcher = patterns.get("MethodNameAndBody").get(0).matcher(fileContents)
+        Matcher initialFileMatcher = patterns.get("MethodNameAndBody").get(0).matcher(fileContents);
         
         HashMap<String, ArrayList<Matcher>> matchers = new HashMap<String, ArrayList<Matcher>>();
 
@@ -203,12 +208,9 @@ public class Parser {
             
         }
 
-       method.getMethodNameAndBody()));
+       //method.getMethodNameAndBody()));
         
-        for (Matcher methodMatcher : methodMatchers)
-
-
-
+        for (Matcher methodMatcher : methodMatchers) {
                 matchers.add(createMatcherFromPattern(patterns.get(0), fileContents));                    
             break;
             case 1:
@@ -219,5 +221,5 @@ public class Parser {
                     
         }
         inj++;            
-    }
+    }*/
 }
