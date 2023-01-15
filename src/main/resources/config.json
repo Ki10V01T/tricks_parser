@@ -2,13 +2,12 @@
     "regexps": {
         "methodName"                : "^\\S+\\(\\)\\n",
         "methodNameAndBody"         : "^\\S+\\(\\)\\n[\\s\\S]*?^\\}",        
-        "searchTargetsWdownload"    : [ 
+        "searchTargets"             : [ 
             "(^[\\s]{3,})w_download[\\s]", 
             "(^[\\s]{3,})w_download [^\\$][\\S]*\\n",
             "(^[\\s]{3,})w_download [^\\$][\\S]* [^\\$][\\S]*\\n",
-            "(^[\\s]{3,})w_download [^\\$][\\S]* [^\\$][\\S]* [^\\$][\\S]*\\n"
-        ],
-        "searchTargetsWdownloadTo"  : [
+            "(^[\\s]{3,})w_download [^\\$][\\S]* [^\\$][\\S]* [^\\$][\\S]*\\n",
+
             "(^[\\s]{3,})w_download_to[\\s]",
             "(^[\\s]{3,})w_download_to [^\\$][\\S]* [^\\$][\\S]*\\n",
             "(^[\\s]{3,})w_download_to [^\\$][\\S]* [^\\$][\\S]* [^\\$][\\S]*\\n"

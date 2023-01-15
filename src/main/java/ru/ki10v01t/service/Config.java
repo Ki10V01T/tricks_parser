@@ -1,16 +1,15 @@
 package ru.ki10v01t.service;
 
 import java.util.ArrayList;
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class Config {    
-    private ArrayList<InnerValuesForRegexps> regexps;
+    private ArrayList<InnerValuesForRegexps> regexps = new ArrayList<>();
     private String payloadFilePath;
 
     public class InnerValuesForRegexps {
         private String methodName, methodNameAndBody;
-        private ArrayList<String> searchTargetsWdownload, searchTargetsWdownloadTo;
+        private ArrayList<String> searchTargets;
 
         @JsonSetter("methodName")
         public void setMethodName (String input) {
@@ -22,34 +21,21 @@ public class Config {
             this.methodNameAndBody = input;
         }
 
-        @JsonSetter("searchTargetsWdownload")
-        public void setSearchTargetsWdownload (ArrayList<String> input) {
-            this.searchTargetsWdownload = input;
+        @JsonSetter("searchTargets")
+        public void setSearchTargets (ArrayList<String> input) {
+            this.searchTargets = input;
         }
 
-        @JsonSetter("searchTargetsWdownloadTo")
-        public void setSearchTargetsWdownloadTo (ArrayList<String> input) {
-            this.searchTargetsWdownloadTo = input;
-        }
-
-        @JsonGetter("methodName")
         public String getMethodName() {
             return this.methodName;
         }
 
-        @JsonGetter("methodNameAndBody")
         public String getMethodNameAndBody() {
             return this.methodNameAndBody;
         }
 
-        @JsonGetter("searchTargetsWdownload")
-        public ArrayList<String> getSearchTargetsWdownload() {
-            return this.searchTargetsWdownload;
-        }
-
-        @JsonGetter("searchTargetsWdownloadTo")
-        public ArrayList<String> getSearchTargetsWdownloadTo() {
-            return this.searchTargetsWdownloadTo;
+        public ArrayList<String> getSearchTargets() {
+            return this.searchTargets;
         }
 
         public String getSearchTargetByIndex(ArrayList<String> inputArray, Integer index) throws ArrayIndexOutOfBoundsException {
@@ -61,8 +47,8 @@ public class Config {
             }
         }
 
-        public String printSearchTargetsWithArgs (ArrayList<String> inputArray) {
-            return String.join(", ", inputArray);
+        public String printSearchTargetsWithArgs () {
+            return String.join(", ", searchTargets);
         }
     }
 
@@ -76,12 +62,10 @@ public class Config {
         this.payloadFilePath = input;
     }
 
-    @JsonGetter("regexps")
     public ArrayList<InnerValuesForRegexps> getRegexps() {
         return this.regexps;
     }    
 
-    @JsonGetter("payloadFilePath")
     public String getPayloadFilePath() {
         return this.payloadFilePath;
     }

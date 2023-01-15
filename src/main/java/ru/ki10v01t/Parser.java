@@ -16,20 +16,11 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import ru.ki10v01t.service.Config;
 import ru.ki10v01t.service.ConfigManager;
 import ru.ki10v01t.service.Method;
 import ru.ki10v01t.service.Package;
+import ru.ki10v01t.service.Config.InnerValuesForRegexps;
 
-/**
- * Working mode for Parser
- * CONFIG - In this mode, the program parses json config file
- * PAYLOAD - In this mode, the program parses input source code file
- */
-enum MODE {
-    CONFIG,
-    PAYLOAD
-}
 
 public class Parser {
     
@@ -43,34 +34,31 @@ public class Parser {
 /**
  * Parses input file, in according with selected mode
  * @param filepath - the absolute path to file in filesystem. If selected mode is CONFIG, checks: whether the value is non-zero  
- * @param mode
  */
     public void readConfig(String configFilePath) {
         File configFile = null;
         try {
             if (configFilePath == null || configFilePath == "") {
+                System.out.println("Не задан конфигурационный файл. Используется стандартный");
                 configFilePath = System.getProperty("user.dir") + "/src/main/resources/config.json";
             }
             configFile = new File(configFilePath);
             if (!configFile.exists()) {
-                System.out.println("Запрашиваемый конфигурационный файл не найден. Используется стандартный");
+                System.out.println("Запрашиваемый конфигурационный файл не найден. (Временно) Используется стандартный");
+                //TODO: DEBUG
                 configFilePath = System.getProperty("user.dir") + "/src/main/resources/config.json";
             } 
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
+           
+        ConfigManager.createConfig(configFile);
 
-        try (FileReader fr = new FileReader(configFile);   
-            BufferedReader bufReader = new BufferedReader(fr);) 
-        {            
-            ConfigManager.createConfig(configFile);
-            ConfigManager.printConfig();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        //TODO: DEBUG
+        ConfigManager.printConfig();
     } 
 
-    public void startProcessingPayloadFile() {        
+    public void startProcessingPayloadFile() {
         File payloadFile = new File(ConfigManager.getConfig().getPayloadFilePath());
         
         try {
@@ -91,29 +79,36 @@ public class Parser {
         }
     }
 
-    /*
-     * TODO: Посмотреть производительность.
-     */
     private String readFromFileToString(File payloadFile) {
-        String fileContents = null;
+        String fileData = null;
         String line = null;
+        
         try(FileReader payloadFr = new FileReader(payloadFile);
             BufferedReader bufReader = new BufferedReader(payloadFr);) {
-            fileContents = line = (bufReader.readLine() + "\n");   
-            //fileContents = line = (bufReader.readLine());  
+            line = (bufReader.readLine() + "\n");   
             while (line != null) {
+                fileData += (line + "\n");
                 line = bufReader.readLine();
-                fileContents += (line + "\n");    
-                //fileContents += line;    
+            }
+
+            if (fileData.equals("") || fileData.equals(null)) {
+                throw new ParserConfigurationException("Файл для парсинга пуст");
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.getMessage();
         }
-        return fileContents;
+        
+
+        return fileData;
     }
 
     // TODO: Автоматизировать выборку полей мапы из конфига
     private void fillsPatternsFromConfig(HashMap<String, ArrayList<Pattern>> allPatterns) {
+
+
+
         for (Map.Entry<String, ArrayList<Pattern>> el : allPatterns.entrySet()) {
             switch (el.getKey()) {
                 case "MethodName" :
@@ -142,7 +137,7 @@ public class Parser {
                                     .getConfig()
                                     .getRegexps()
                                     .get(0)
-                                    .getSearchTargetsWdownload()) {
+                                    .getSearchTargets()) {
             allPatterns.get("SearchTargetsWdownload").add( 
                 Pattern.compile(
                 ConfigManager.getConfig()
@@ -151,20 +146,6 @@ public class Parser {
                 .getMethodNameAndBody(),Pattern.MULTILINE)
             );
         }
-
-        for (String el : ConfigManager
-                                    .getConfig()
-                                    .getRegexps()
-                                    .get(0)
-                                    .getSearchTargetsWdownloadTo()) {
-            allPatterns.get("SearchTargetsWdownloadTo").add( 
-                Pattern.compile(
-                ConfigManager.getConfig()
-                .getRegexps()
-                .get(0)
-                .getMethodNameAndBody(),Pattern.MULTILINE)
-            );
-        } 
         
         //return allPatterns;
     }
@@ -179,14 +160,10 @@ public class Parser {
         return resultMap;
     }
 
-    private void parseFile(String fileContents) throws ParserConfigurationException {
-        if (fileContents.equals("") || fileContents.equals(null)) {
-            throw new ParserConfigurationException("Файл для парсинга пуст");
-        }
+    private void parseFile(String fileData) {
+        InnerValuesForRegexps patterns = ConfigManager.getConfig().getRegexps().get(0);   
 
-        HashMap<String, ArrayList<Pattern>> patterns = fillsPatternsFromConfig();   
-
-        Matcher initialFileMatcher = patterns.get("MethodNameAndBody").get(0).matcher(fileContents);
+        Matcher initialFileMatcher = patterns.getMethodNameAndBody().matcher(fileData);
         
         HashMap<String, ArrayList<Matcher>> matchers = new HashMap<String, ArrayList<Matcher>>();
 
@@ -204,13 +181,13 @@ public class Parser {
             matchers.get("SearchTargetsWdownload")
                 .add(patterns.get("SearchTargetsWdownload")
                 .get(0)
-                    .matcher((fileContents.substring(initialFileMatcher.start(), initialFileMatcher.end())))));
+                    .matcher((fileData.substring(initialFileMatcher.start(), initialFileMatcher.end())))));
             
         }
 
        //method.getMethodNameAndBody()));
         
-        for (Matcher methodMatcher : methodMatchers) {
+        /*for (Matcher methodMatcher : methodMatchers) {
                 matchers.add(createMatcherFromPattern(patterns.get(0), fileContents));                    
             break;
             case 1:
@@ -220,6 +197,6 @@ public class Parser {
             case 2:
                     
         }
-        inj++;            
-    }*/
+        inj++;       */     
+    }
 }
