@@ -1,72 +1,41 @@
 package ru.ki10v01t.service;
 
 import java.util.ArrayList;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class Config {    
-    private ArrayList<InnerValuesForRegexps> regexps = new ArrayList<>();
+    private ArrayList<InnerValuesForRegexps<String>> regexps = new ArrayList<>();
     private String payloadFilePath;
 
-    public class InnerValuesForRegexps {
-        private String methodName, methodNameAndBody;
-        private ArrayList<String> searchTargets;
-
-        @JsonSetter("methodName")
-        public void setMethodName (String input) {
-            this.methodName = input;
-        }
-
-        @JsonSetter("methodNameAndBody")
-        public void setMethodNameAndBody (String input) {
-            this.methodNameAndBody = input;
-        }
-
-        @JsonSetter("searchTargets")
-        public void setSearchTargets (ArrayList<String> input) {
-            this.searchTargets = input;
-        }
-
-        public String getMethodName() {
-            return this.methodName;
-        }
-
-        public String getMethodNameAndBody() {
-            return this.methodNameAndBody;
-        }
-
-        public ArrayList<String> getSearchTargets() {
-            return this.searchTargets;
-        }
-
-        public String getSearchTargetByIndex(ArrayList<String> inputArray, Integer index) throws ArrayIndexOutOfBoundsException {
-            if (index >= inputArray.size()) {
-                return inputArray.get(index);
-            }
-            else {
-                throw new ArrayIndexOutOfBoundsException("Выход за границы массива");
-            }
-        }
-
-        public String printSearchTargetsWithArgs () {
-            return String.join(", ", searchTargets);
-        }
-    }
 
     @JsonSetter("regexps")
-    public void setRegexps(InnerValuesForRegexps value) {
+    public void addRegexp(InnerValuesForRegexps<String> value) {
         this.regexps.add(value);
     }
 
     @JsonSetter("payloadFilePath")
     public void setPayloadFilePath(String input) {
         this.payloadFilePath = input;
-    }
+    }  
 
-    public ArrayList<InnerValuesForRegexps> getRegexps() {
+    public ArrayList<InnerValuesForRegexps<String>> getRegexps() {
         return this.regexps;
     }    
 
     public String getPayloadFilePath() {
         return this.payloadFilePath;
+    }
+
+    @Override
+    public String toString() {
+        for (InnerValuesForRegexps<String> el : regexps) {
+            System.out.printf("\n Method name: %s,\n Method Name and Body:  %s,\n SearchTargets: %s,\n, Payload file path: %s\n", 
+            el.getMethodName(),
+            el.getMethodNameAndBody(),
+            el.printSearchTargetsWithArgs(),
+            getPayloadFilePath());
+        }
+        return null;
     }
 }

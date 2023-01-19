@@ -1,25 +1,14 @@
 package ru.ki10v01t;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import ru.ki10v01t.service.ConfigManager;
-import ru.ki10v01t.service.Method;
-import ru.ki10v01t.service.Package;
-import ru.ki10v01t.service.Config.InnerValuesForRegexps;
+import ru.ki10v01t.service.InnerValuesForRegexps;
 
 
 public class Parser {
@@ -33,7 +22,7 @@ public class Parser {
 
 /**
  * Parses input file, in according with selected mode
- * @param filepath - the absolute path to file in filesystem. If selected mode is CONFIG, checks: whether the value is non-zero  
+ * @param configFilePath - the absolute path to file in filesystem. If selected mode is CONFIG, checks: whether the value is non-zero  
  */
     public void readConfig(String configFilePath) {
         File configFile = null;
@@ -54,12 +43,16 @@ public class Parser {
            
         ConfigManager.createConfig(configFile);
 
+        for (String s : ConfigManager.getDeclaredInnerValuesFields())
+        {
+            System.out.println(s);
+        }
         //TODO: DEBUG
         ConfigManager.printConfig();
     } 
 
     public void startProcessingPayloadFile() {
-        File payloadFile = new File(ConfigManager.getConfig().getPayloadFilePath());
+        File payloadFile = new File(ConfigManager.getPayloadInfo());
         
         try {
             if (!ConfigManager.checkingForConfigExistence()) {
@@ -70,8 +63,8 @@ public class Parser {
                 throw new ParserConfigurationException("Файл для парсинга не найден");
             }
 
-            readFromFileToString(payloadFile);
-            //parseFile(readFromFileToString(payloadFile)); 
+            //readFromFileToString(payloadFile);
+            parseFile(readFromFileToString(payloadFile)); 
             //parseFile(readFromFileToStringFIN(payloadFile)); 
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
@@ -104,87 +97,23 @@ public class Parser {
         return fileData;
     }
 
-    // TODO: Автоматизировать выборку полей мапы из конфига
-    private void fillsPatternsFromConfig(HashMap<String, ArrayList<Pattern>> allPatterns) {
-
-
-
-        for (Map.Entry<String, ArrayList<Pattern>> el : allPatterns.entrySet()) {
-            switch (el.getKey()) {
-                case "MethodName" :
-                    break;
-                //case ""
-            }
-        }
-        allPatterns.get("MethodName").add(Pattern.compile(
-                ConfigManager.getConfig()
-                .getRegexps()
-                .get(0)
-                .getMethodName(), Pattern.MULTILINE)
-        );
-
-        allPatterns.put("MethodNameAndBody", (ArrayList<Pattern>)Arrays.asList(
-            Pattern.compile(
-                ConfigManager.getConfig()
-                .getRegexps()
-                .get(0)
-                .getMethodNameAndBody(), Pattern.MULTILINE)
-        ));
-
-        allPatterns.put("SearchTargetsWdownload", new ArrayList<Pattern>());
-        allPatterns.put("SearchTargetsWdownloadTo", new ArrayList<Pattern>());
-        for (String el : ConfigManager
-                                    .getConfig()
-                                    .getRegexps()
-                                    .get(0)
-                                    .getSearchTargets()) {
-            allPatterns.get("SearchTargetsWdownload").add( 
-                Pattern.compile(
-                ConfigManager.getConfig()
-                .getRegexps()
-                .get(0)
-                .getMethodNameAndBody(),Pattern.MULTILINE)
-            );
-        }
-        
-        //return allPatterns;
-    }
-
-    private <T> HashMap<String, ArrayList<T>> initMap() {
-        HashMap <String, ArrayList<T>> resultMap = new HashMap<>();
-
-        for (String field : ConfigManager.getDeclaredInnerValuesFields()) {
-            resultMap.put(field, new ArrayList<T>());
-        }
-
-        return resultMap;
-    }
-
     private void parseFile(String fileData) {
-        InnerValuesForRegexps patterns = ConfigManager.getConfig().getRegexps().get(0);   
 
-        Matcher initialFileMatcher = patterns.getMethodNameAndBody().matcher(fileData);
-        
-        HashMap<String, ArrayList<Matcher>> matchers = new HashMap<String, ArrayList<Matcher>>();
+        ConfigManager.prepareToParse(fileData);
 
-        matchers.putAll(Map.of("SearchTargetsWdownload", new ArrayList<Matcher>(),
-         "SearchTargetsWdownloadTo", new ArrayList<Matcher>()));
+        for(InnerValuesForRegexps<Matcher> el : ConfigManager.getConfigServe().) {
 
-        ArrayList<Method> methods = new ArrayList<Method>();
-        ArrayList<Package> packages = new ArrayList<Package>();
-        
-        String resultOfFind = null;
-        Integer inj=0;
-
-        // Fills arrays by method names and bodies from target file
-        while (initialFileMatcher.find()) {
-            matchers.get("SearchTargetsWdownload")
-                .add(patterns.get("SearchTargetsWdownload")
-                .get(0)
-                    .matcher((fileData.substring(initialFileMatcher.start(), initialFileMatcher.end())))));
-            
         }
 
+        while (matcher.find()) {
+            int start=matcher.start();
+            int end=matcher.end();
+            System.out.println("Найдено совпадение " + text.substring(start,end) + " с "+ start + " по " + (end-1) + " позицию");
+        }
+
+        // for(InnerValuesForRegexps<Matcher> el : ConfigManager.getConfig().getMatchers()) {
+        //     el.get
+        // } 
        //method.getMethodNameAndBody()));
         
         /*for (Matcher methodMatcher : methodMatchers) {
