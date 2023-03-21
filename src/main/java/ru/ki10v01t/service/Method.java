@@ -5,9 +5,9 @@ import java.util.ArrayList;
 public class Method extends LineNumber {
     private String methodNameAndBody;
     private String methodName;
-    private Integer position;
     private String methodBody;
     private String[] inputArgs;
+    private Integer position;
 
     public Method() {
         inputArgs = new String[4];

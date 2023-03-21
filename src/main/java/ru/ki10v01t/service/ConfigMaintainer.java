@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ConfigServe {
+public class ConfigMaintainer {
     private ArrayList<InnerValuesForRegexps<Pattern>> patterns = new ArrayList<>();
     private ArrayList<InnerValuesForRegexps<Matcher>> matchers = new ArrayList<>();
 
 
-    ConfigServe() {
+    ConfigMaintainer() {
         patterns = new ArrayList<>();
         matchers = new ArrayList<>();
     }

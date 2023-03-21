@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class ConfigManager {
     private static Config currentConfig = null;
-    private static ConfigServe configServe = null;
+    private static ConfigMaintainer maintainer = null;
     private static ObjectMapper objectMapper = null;
     private static ArrayList<String> configFields = null;
     
@@ -31,17 +33,17 @@ public class ConfigManager {
     }
 
 
-    public static void createConfig (File file) {
+    public static void createConfig (File configFD) {
         if (objectMapper == null) {
             objectMapper = new ObjectMapper();
         }        
 
         try {
-            currentConfig = objectMapper.readValue(file, Config.class);
-            configServe = new ConfigServe();
+            currentConfig = objectMapper.readValue(configFD, Config.class);
+            maintainer = new ConfigMaintainer();
             //currentConfig = objectMapper.readValue(file, new TypeReference<>(){});
             setDeclaredInnerValuesFields(currentConfig.getRegexps().get(0));
-            configServe.makePatterns();
+            maintainer.makePatterns();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -52,11 +54,11 @@ public class ConfigManager {
     }
 
     public static void prepareToParse(String fileData) {
-        configServe.makeMatchers(fileData);
+        maintainer.makeMatchers(fileData);
     }
     
-    public static ConfigServe getConfigServe() {
-        return configServe;
+    public static ArrayList<InnerValuesForRegexps<Matcher>> getPrepatedTargets() {
+        return maintainer.getMatchers();
     }
 
     public static Config getConfig() {

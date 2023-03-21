@@ -25,14 +25,14 @@ public class Parser {
  * @param configFilePath - the absolute path to file in filesystem. If selected mode is CONFIG, checks: whether the value is non-zero  
  */
     public void readConfig(String configFilePath) {
-        File configFile = null;
+        File configFD = null;
         try {
             if (configFilePath == null || configFilePath == "") {
                 System.out.println("Не задан конфигурационный файл. Используется стандартный");
                 configFilePath = System.getProperty("user.dir") + "/src/main/resources/config.json";
             }
-            configFile = new File(configFilePath);
-            if (!configFile.exists()) {
+            configFD = new File(configFilePath);
+            if (!configFD.exists()) {
                 System.out.println("Запрашиваемый конфигурационный файл не найден. (Временно) Используется стандартный");
                 //TODO: DEBUG
                 configFilePath = System.getProperty("user.dir") + "/src/main/resources/config.json";
@@ -41,7 +41,7 @@ public class Parser {
             e.printStackTrace();
         }
            
-        ConfigManager.createConfig(configFile);
+        ConfigManager.createConfig(configFD);
 
         for (String s : ConfigManager.getDeclaredInnerValuesFields())
         {
@@ -72,11 +72,11 @@ public class Parser {
         }
     }
 
-    private String readFromFileToString(File payloadFile) {
+    private String readFromFileToString(File payloadFD) {
         String fileData = null;
         String line = null;
         
-        try(FileReader payloadFr = new FileReader(payloadFile);
+        try(FileReader payloadFr = new FileReader(payloadFD);
             BufferedReader bufReader = new BufferedReader(payloadFr);) {
             line = (bufReader.readLine() + "\n");   
             while (line != null) {
@@ -101,31 +101,26 @@ public class Parser {
 
         ConfigManager.prepareToParse(fileData);
 
-        for(InnerValuesForRegexps<Matcher> el : ConfigManager.getConfigServe().) {
-
-        }
-
-        while (matcher.find()) {
-            int start=matcher.start();
-            int end=matcher.end();
-            System.out.println("Найдено совпадение " + text.substring(start,end) + " с "+ start + " по " + (end-1) + " позицию");
-        }
-
-        // for(InnerValuesForRegexps<Matcher> el : ConfigManager.getConfig().getMatchers()) {
-        //     el.get
-        // } 
-       //method.getMethodNameAndBody()));
         
-        /*for (Matcher methodMatcher : methodMatchers) {
-                matchers.add(createMatcherFromPattern(patterns.get(0), fileContents));                    
-            break;
-            case 1:
-                while (m.find()) {
-                    System.out.println(fileContents.substring(m.start(), m.end()));
+        for(InnerValuesForRegexps<Matcher> el : ConfigManager.getPrepatedTargets()) {
+            int beginningFoundRegion;
+            int endingFoundRegion;
+            
+            while(el.getMethodNameAndBody().find()) {
+                beginningFoundRegion=el.getMethodNameAndBody().start();
+                endingFoundRegion=el.getMethodNameAndBody().end();
+                
+                // System.out.println(fileData.substring(beginningFoundRegion, endingFoundRegion));
+                for(Matcher target : el.getSearchTargets())
+                {
+                    while(target.find()) {
+
+                    }
+                    fileData.substring(beginningFoundRegion, endingFoundRegion);
                 }
-            case 2:
-                    
+            }
+
+
         }
-        inj++;       */     
     }
 }
