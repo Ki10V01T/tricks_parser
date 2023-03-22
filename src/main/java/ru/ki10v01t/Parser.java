@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import ru.ki10v01t.service.Package;
 import ru.ki10v01t.service.ConfigManager;
 import ru.ki10v01t.service.InnerValuesForRegexps;
 
@@ -101,22 +102,35 @@ public class Parser {
 
         ConfigManager.prepareToParse(fileData);
 
-        
+        int beginningFoundStartingRegion;
+        int endingFoundStartingRegion;
+        String findedMethodName;
+        Package findedPackage;
         for(InnerValuesForRegexps<Matcher> el : ConfigManager.getPrepatedTargets()) {
-            int beginningFoundRegion;
-            int endingFoundRegion;
-            
             while(el.getMethodNameAndBody().find()) {
-                beginningFoundRegion=el.getMethodNameAndBody().start();
-                endingFoundRegion=el.getMethodNameAndBody().end();
-                
+                beginningFoundStartingRegion=el.getMethodNameAndBody().start();
+                endingFoundStartingRegion=el.getMethodNameAndBody().end();                
                 // System.out.println(fileData.substring(beginningFoundRegion, endingFoundRegion));
                 for(Matcher target : el.getSearchTargets())
                 {
+                    target.region(beginningFoundStartingRegion, endingFoundStartingRegion);
                     while(target.find()) {
+                        while(el.getMethodName().region(beginningFoundStartingRegion, endingFoundStartingRegion).find()) {
+                            findedMethodName = fileData.substring(el.getMethodName().start(), el.getMethodName().end());
+                        }
+                        
+                        //TODO: посмотреть момент с ковычиками. Их может и не быть. Уточнить логику.
+                        while(el.getQuotationExtractor().region(target.start(), target.end()).find()) {
+                            //fileData.substring(el.getQuotationExtractor().start(), el.getQuotationExtractor().end());
+                            while(el.getLinkExtractor().region(target.start(), target.end()).find()) {
 
+                            }
+                            while(el.getHashExtractor().region(target.start(), target.end()).find()) {
+
+                            }
+                        }
                     }
-                    fileData.substring(beginningFoundRegion, endingFoundRegion);
+                    //fileData.substring(beginningFoundRegion, endingFoundRegion);
                 }
             }
 

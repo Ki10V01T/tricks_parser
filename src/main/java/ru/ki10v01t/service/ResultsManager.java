@@ -3,12 +3,13 @@ package ru.ki10v01t.service;
 import java.util.ArrayList;
 
 public class ResultsManager {
-    private static ArrayList<Package> foundedPackages = new ArrayList<>();
+    private static ArrayList<Package> foundedPackages;
     
-    public static void addPackage() {
-
+    ResultsManager() {
+        foundedPackages = new ArrayList<>();
     }
-
     
-
+    public static void addPackage(Package inputPackage) {
+        foundedPackages.add(inputPackage);
+    }
 }

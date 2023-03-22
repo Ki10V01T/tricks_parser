@@ -6,7 +6,10 @@
             "(?<=^[\\s]{3,13}w_download\\s)[^\\$][\\S]*[^\\$][\\S]*[^\\$][\\S]*\\n",
             "(?<=^[\\s]{3,13}w_download_to\\s)[^\\$][\\S]*[^\\$][\\S]*[^\\$][\\S]*\\n"
         ],
-        "linkExtractorRegexps" : []
+        "quotationExtractor"        : "(?<=[\"])[^\\$][\\S]*(?=\")",
+        "linkExtractor"             : "http[\\S]*[^\\s]",
+        "hashExtractor"             : "(?<=\\.\\w{2,4}[\\s])[\\S]*[^\\s]"
+
     },
     "payloadFilePath" : "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/winetricks"
 }
