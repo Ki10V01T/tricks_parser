@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -104,8 +105,9 @@ public class Parser {
 
         int beginningFoundStartingRegion;
         int endingFoundStartingRegion;
-        String findedMethodName;
-        Package findedPackage;
+        String findedMethodName = "";
+        ArrayList<Package> findedPackagesList = new ArrayList<>();
+
         for(InnerValuesForRegexps<Matcher> el : ConfigManager.getPrepatedTargets()) {
             while(el.getMethodNameAndBody().find()) {
                 beginningFoundStartingRegion=el.getMethodNameAndBody().start();
@@ -113,28 +115,58 @@ public class Parser {
                 // System.out.println(fileData.substring(beginningFoundRegion, endingFoundRegion));
                 for(Matcher target : el.getSearchTargets())
                 {
-                    target.region(beginningFoundStartingRegion, endingFoundStartingRegion);
-                    while(target.find()) {
+                    //target = target.region(beginningFoundStartingRegion, endingFoundStartingRegion);
+                    while(target.region(beginningFoundStartingRegion, endingFoundStartingRegion).find()) {
+                        //Matcher r = el.getMethodName().region(beginningFoundStartingRegion, endingFoundStartingRegion);
                         while(el.getMethodName().region(beginningFoundStartingRegion, endingFoundStartingRegion).find()) {
                             findedMethodName = fileData.substring(el.getMethodName().start(), el.getMethodName().end());
                         }
                         
-                        //TODO: посмотреть момент с ковычиками. Их может и не быть. Уточнить логику.
-                        while(el.getQuotationExtractor().region(target.start(), target.end()).find()) {
-                            //fileData.substring(el.getQuotationExtractor().start(), el.getQuotationExtractor().end());
-                            while(el.getLinkExtractor().region(target.start(), target.end()).find()) {
+                        //TODO: посмотреть момент с кавычками. Их может и не быть. Уточнить логику.
+                        // Если кавычки найдены, возвращаемся в начало региона и достаём всю инфу из них.
+                        if(el.getQuotationExtractor().region(target.start(), target.end()).find()) {
+                            el.getQuotationExtractor().region(target.start(), target.end()).reset();
 
-                            }
-                            while(el.getHashExtractor().region(target.start(), target.end()).find()) {
-
+                            while(el.getQuotationExtractor().find()) {
+                                findedPackagesList.add(new Package(
+                                                                    linkExtraction(el, fileData),
+                                                                    hashExtraction(el, fileData),
+                                                                    findedMethodName));
+                                
+                                //fileData.substring(el.getQuotationExtractor().start(), el.getQuotationExtractor().end());
                             }
                         }
+                        else {
+                            findedPackagesList.add(new Package(
+                                                                linkExtraction(el, fileData),
+                                                                hashExtraction(el, fileData),
+                                                                findedMethodName));
+                        }
+                        
                     }
+
                     //fileData.substring(beginningFoundRegion, endingFoundRegion);
                 }
             }
-
+            
 
         }
+        findedPackagesList.toString();
+    }
+
+    private String hashExtraction(InnerValuesForRegexps<Matcher> el, String fileData) {
+        String parsedHash = "";
+        while(el.getHashExtractor().find()) {
+            parsedHash = fileData.substring(el.getHashExtractor().start(), el.getHashExtractor().end());
+        }
+        return parsedHash;
+    }
+
+    private String linkExtraction(InnerValuesForRegexps<Matcher> el, String fileData) {
+        String parsedLink = "";
+        while(el.getLinkExtractor().find()) {
+            parsedLink = fileData.substring(el.getLinkExtractor().start(), el.getLinkExtractor().end());
+        }
+        return parsedLink;
     }
 }
