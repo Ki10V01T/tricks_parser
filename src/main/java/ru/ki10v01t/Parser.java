@@ -115,31 +115,32 @@ public class Parser {
                 // System.out.println(fileData.substring(beginningFoundRegion, endingFoundRegion));
                 for(Matcher target : el.getSearchTargets())
                 {
-                    //target = target.region(beginningFoundStartingRegion, endingFoundStartingRegion);
-                    while(target.region(beginningFoundStartingRegion, endingFoundStartingRegion).find()) {
-                        //Matcher r = el.getMethodName().region(beginningFoundStartingRegion, endingFoundStartingRegion);
-                        while(el.getMethodName().region(beginningFoundStartingRegion, endingFoundStartingRegion).find()) {
-                            findedMethodName = fileData.substring(el.getMethodName().start(), el.getMethodName().end());
+                    target = target.region(beginningFoundStartingRegion, endingFoundStartingRegion);
+                    while(target.find()) {
+                        //thread1
+                        Matcher targetName = el.getMethodName().region(beginningFoundStartingRegion, endingFoundStartingRegion);
+                        while(targetName.find()) {
+                            findedMethodName = fileData.substring(targetName.start(), targetName.end());
                         }
                         
                         //TODO: посмотреть момент с кавычками. Их может и не быть. Уточнить логику.
                         // Если кавычки найдены, возвращаемся в начало региона и достаём всю инфу из них.
-                        if(el.getQuotationExtractor().region(target.start(), target.end()).find()) {
-                            el.getQuotationExtractor().region(target.start(), target.end()).reset();
-
-                            while(el.getQuotationExtractor().find()) {
+                        Matcher targetQuotation = el.getQuotationExtractor().region(target.start(), target.end());
+                        if(targetQuotation.find()) {
+                            int startQuotationArea = targetQuotation.start();
+                            int endQuotationArea = targetQuotation.end();
+                            //el.getQuotationExtractor().region(target.start(), target.end()).reset();
+                            do {
                                 findedPackagesList.add(new Package(
-                                                                    linkExtraction(el, fileData),
-                                                                    hashExtraction(el, fileData),
+                                                                    linkExtraction(el, target.start(), target.end(), fileData),
+                                                                    hashExtraction(el, target.start(), target.end(), fileData),
                                                                     findedMethodName));
-                                
-                                //fileData.substring(el.getQuotationExtractor().start(), el.getQuotationExtractor().end());
-                            }
+                            } while(targetQuotation.find()); 
                         }
                         else {
                             findedPackagesList.add(new Package(
-                                                                linkExtraction(el, fileData),
-                                                                hashExtraction(el, fileData),
+                                                                linkExtraction(el, target.start(), target.end(), fileData),
+                                                                hashExtraction(el, target.start(), target.end(), fileData),
                                                                 findedMethodName));
                         }
                         
@@ -154,18 +155,20 @@ public class Parser {
         findedPackagesList.toString();
     }
 
-    private String hashExtraction(InnerValuesForRegexps<Matcher> el, String fileData) {
+    private String hashExtraction(InnerValuesForRegexps<Matcher> el, int regionStartId, int regionEndId, String fileData) {
         String parsedHash = "";
-        while(el.getHashExtractor().find()) {
-            parsedHash = fileData.substring(el.getHashExtractor().start(), el.getHashExtractor().end());
+        Matcher targetHash = el.getHashExtractor().region(regionStartId, regionEndId);
+        while(targetHash.find()) {
+            parsedHash = fileData.substring(targetHash.start(), targetHash.end());
         }
         return parsedHash;
     }
 
-    private String linkExtraction(InnerValuesForRegexps<Matcher> el, String fileData) {
+    private String linkExtraction(InnerValuesForRegexps<Matcher> el, int regionStartId, int regionEndId, String fileData) {
         String parsedLink = "";
-        while(el.getLinkExtractor().find()) {
-            parsedLink = fileData.substring(el.getLinkExtractor().start(), el.getLinkExtractor().end());
+        Matcher targetLink = el.getLinkExtractor().region(regionStartId, regionEndId);
+        while(targetLink.find()) {
+            parsedLink = fileData.substring(targetLink.start(), targetLink.end());
         }
         return parsedLink;
     }
