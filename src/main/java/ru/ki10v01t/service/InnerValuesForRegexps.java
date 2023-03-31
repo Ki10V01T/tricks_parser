@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class InnerValuesForRegexps <T> {
-    private T methodName, methodNameAndBody, quotationExtractor, linkExtractor, hashExtractor;
+    private T methodName, methodNameAndBody, linkExtractor, hashExtractor;
     private ArrayList<T> searchTargets;
 
     @JsonSetter("methodName")
@@ -16,11 +16,6 @@ public class InnerValuesForRegexps <T> {
     @JsonSetter("methodNameAndBody")
     public void setMethodNameAndBody (T input) {
         this.methodNameAndBody = input;
-    }
-
-    @JsonSetter("quotationExtractor")
-    public void setQuotationExtractor(T input) {
-        this.quotationExtractor = input;
     }
 
     @JsonSetter("linkExtractor")
@@ -51,10 +46,6 @@ public class InnerValuesForRegexps <T> {
 
     public T getMethodNameAndBody() {
         return this.methodNameAndBody;
-    }
-
-    public T getQuotationExtractor() {
-        return this.quotationExtractor;
     }
 
     public T getLinkExtractor() {

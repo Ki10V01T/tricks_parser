@@ -10,9 +10,9 @@ public class Package {
       
 
     public Package(String inputLink, String inputHash, String inputMethodName) {
-        this.link = inputLink;
-        this.hash = inputHash;
-        this.methodName = inputMethodName;
+        this.link = inputLink.replaceAll("^\"|\"$", "");
+        this.hash = inputHash.replaceAll("^\"|\"$", "");
+        this.methodName = inputMethodName.replaceAll("^\"|\"$", "");
     }
 
     public void setName(String input) {

@@ -26,7 +26,7 @@ public class ConfigMaintainer {
             p = new InnerValuesForRegexps<>();
             p.setMethodName(Pattern.compile(el.getMethodName(), Pattern.MULTILINE));
             p.setMethodNameAndBody(Pattern.compile(el.getMethodNameAndBody(), Pattern.MULTILINE));
-            p.setQuotationExtractor(Pattern.compile(el.getQuotationExtractor(), Pattern.MULTILINE));
+            //p.setQuotationExtractor(Pattern.compile(el.getQuotationExtractor(), Pattern.MULTILINE));
             p.setLinkExtractor(Pattern.compile(el.getLinkExtractor(), Pattern.MULTILINE));
             p.setHashExtractor(Pattern.compile(el.getHashExtractor(), Pattern.MULTILINE));
 
@@ -45,7 +45,7 @@ public class ConfigMaintainer {
             m = new InnerValuesForRegexps<>();
             m.setMethodName(el.getMethodName().matcher(fileData));
             m.setMethodNameAndBody(el.getMethodNameAndBody().matcher(fileData));
-            m.setQuotationExtractor(el.getQuotationExtractor().matcher(fileData));
+            //m.setQuotationExtractor(el.getQuotationExtractor().matcher(fileData));
             m.setLinkExtractor(el.getLinkExtractor().matcher(fileData));
             m.setHashExtractor(el.getHashExtractor().matcher(fileData));
 

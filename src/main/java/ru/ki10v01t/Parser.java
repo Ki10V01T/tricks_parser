@@ -45,13 +45,16 @@ public class Parser {
            
         ConfigManager.createConfig(configFD);
 
+        //TODO: DEBUG
+        ConfigManager.printConfig();
+    } 
+
+    private void printDeclaredConfigClassFields() {
         for (String s : ConfigManager.getDeclaredInnerValuesFields())
         {
             System.out.println(s);
         }
-        //TODO: DEBUG
-        ConfigManager.printConfig();
-    } 
+    }
 
     public void startProcessingPayloadFile() {
         File payloadFile = new File(ConfigManager.getPayloadInfo());
@@ -111,8 +114,8 @@ public class Parser {
         for(InnerValuesForRegexps<Matcher> el : ConfigManager.getPrepatedTargets()) {
             while(el.getMethodNameAndBody().find()) {
                 beginningFoundStartingRegion=el.getMethodNameAndBody().start();
-                endingFoundStartingRegion=el.getMethodNameAndBody().end();                
-                // System.out.println(fileData.substring(beginningFoundRegion, endingFoundRegion));
+                endingFoundStartingRegion=el.getMethodNameAndBody().end();
+
                 for(Matcher target : el.getSearchTargets())
                 {
                     target = target.region(beginningFoundStartingRegion, endingFoundStartingRegion);
@@ -122,37 +125,18 @@ public class Parser {
                         while(targetName.find()) {
                             findedMethodName = fileData.substring(targetName.start(), targetName.end());
                         }
-                        
-                        //TODO: посмотреть момент с кавычками. Их может и не быть. Уточнить логику.
-                        // Если кавычки найдены, возвращаемся в начало региона и достаём всю инфу из них.
-                        Matcher targetQuotation = el.getQuotationExtractor().region(target.start(), target.end());
-                        if(targetQuotation.find()) {
-                            int startQuotationArea = targetQuotation.start();
-                            int endQuotationArea = targetQuotation.end();
-                            //el.getQuotationExtractor().region(target.start(), target.end()).reset();
-                            do {
-                                findedPackagesList.add(new Package(
-                                                                    linkExtraction(el, target.start(), target.end(), fileData),
-                                                                    hashExtraction(el, target.start(), target.end(), fileData),
-                                                                    findedMethodName));
-                            } while(targetQuotation.find()); 
-                        }
-                        else {
-                            findedPackagesList.add(new Package(
-                                                                linkExtraction(el, target.start(), target.end(), fileData),
-                                                                hashExtraction(el, target.start(), target.end(), fileData),
-                                                                findedMethodName));
-                        }
+
+                        findedPackagesList.add(new Package(
+                                                            linkExtraction(el, target.start(), target.end(), fileData),
+                                                            hashExtraction(el, target.start(), target.end(), fileData),
+                                                            findedMethodName));
+
                         
                     }
-
-                    //fileData.substring(beginningFoundRegion, endingFoundRegion);
                 }
             }
-            
-
         }
-        findedPackagesList.toString();
+        //findedPackagesList.toString();
     }
 
     private String hashExtraction(InnerValuesForRegexps<Matcher> el, int regionStartId, int regionEndId, String fileData) {

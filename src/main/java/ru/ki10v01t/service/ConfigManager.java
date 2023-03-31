@@ -13,8 +13,11 @@ public class ConfigManager {
     private static Config currentConfig = null;
     private static ConfigMaintainer maintainer = null;
     private static ObjectMapper objectMapper = null;
+
+    @Deprecated
     private static ArrayList<String> configFields = null;
     
+    @Deprecated
     private static void setDeclaredInnerValuesFields(InnerValuesForRegexps<String> input) {
         if (configFields ==  null) {
             configFields = new ArrayList<String>();
@@ -28,6 +31,7 @@ public class ConfigManager {
         }
     }
 
+    @Deprecated
     public static ArrayList<String> getDeclaredInnerValuesFields() {
         return configFields;
     }
@@ -42,7 +46,7 @@ public class ConfigManager {
             currentConfig = objectMapper.readValue(configFD, Config.class);
             maintainer = new ConfigMaintainer();
             //currentConfig = objectMapper.readValue(file, new TypeReference<>(){});
-            setDeclaredInnerValuesFields(currentConfig.getRegexps().get(0));
+            //setDeclaredInnerValuesFields(currentConfig.getRegexps().get(0));
             maintainer.makePatterns();
         } catch (IOException ex) {
             ex.printStackTrace();
