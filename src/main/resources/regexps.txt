@@ -1,0 +1,92 @@
+helper.+\(\)[^ \n\{\s\S]?
+
+(?<=\s{2,})[^\s]?w_download_to
+
+^\w*()(?<=\s{2,})[^\s]?w_download_to
+
+(?<=\s{2,})[^\s]?w_download_to
+
+(?:^   [\s\S]*?\n)
+
+============================================
+^\S+\(\)\n
+{
+выделение имени метода
+}
+
+^\S+\(\)\n[\s\S]*?^\}
+{
+выделение имени и тела метода
+}
+
+w_download_to [^"]\w* htt[\S]* [\S]*
+{
+    w_download_to directx9 https://web.archive.org/web/20100920035904/https://download.microsoft.com/download/3/9/7/3972f80c-5711-4e14-9483-959d48a2d03b/directx_apr2006_redist.exe dd8c3d401efe4561b67bd88475201b2f62f43cd23e4acc947bb34a659fa74952
+
+}
+
+[][][]][][(^[\s]{3,})w_download_to (?!\$)[\S]* (?!\$)[\S]*\n
+
+(^[\s]{3,})w_download [^\$][\S]*\n
+{
+ 6
+}
+
+(^[\s]{3,})w_download [^\$][\S]* [^\$][\S]*\n
+{
+ 277
+}
+
+(^[\s]{3,})w_download [^\$][\S]* [^\$][\S]* [^\$][\S]*\n
+{
+ 14
+}
+
+
+============================
+temp:
+
+(?<=^[\s]{3,13}w_download\s)[^\$][\S]*[^\$][\S]*[^\$][\S]*\n        #296
+(?<=^[\s]{3,13}w_download_to\s)[^\$][\S]*[^\$][\S]*[^\$][\S]*\n     #41
+
+total:
+my: 337 (со странностями)
+expected: 336
+
+============================
+
+JSON_backup:
+
+"_quotationExtractor"        : "(?<=[\"])[^\\$][\\S]*(?=\")",
+
+============================
+
+^[\s]{3,}w_download htt[\S]* [\S]* "[\s\S]*"
+{
+    w_download https://web.archive.org/web/20130324022555/http://care.dlservice.microsoft.com/dl/download/2/9/C/29CC45EF-4CDA-4710-9FB3-1489786570A1/OfficeProfessionalPlus_x86_en-us.img 236f8faae3f979ec72592a63784bba2f0d614916350c44631221b88ae9dae206 "OFFICE15.iso"
+}
+
+?
+{
+w_download https://download-installer.cdn.mozilla.net/pub/firefox/releases/62.0.3/win32/ach/Firefox%20Setup%2062.0.3.exe "d6edb4ff0a713f417ebd19baedfe07527c6e45e84a6c73ed8c66a33377cc0aca" "FirefoxSetup62.0.3-win32.exe"
+}
+
+
+
+
+
+
+======
+# Download a file
+# Usage: w_download url [shasum [filename [cookie jar]]]
+# Caches downloads in winetrickscache/$W_PACKAGE
+w_download()
+{
+    w_download_to "${W_PACKAGE}" "$@"
+}
+
+======
+# Download a file
+# Usage: w_download_to (packagename|path to download file) url [shasum [filename [cookie jar]]]
+# Caches downloads in winetrickscache/$packagename
+w_download_to()
