@@ -19,6 +19,10 @@ public class ResultsManager {
         return foundedPackages;
     }
 
+    public static Package getFoundedPackageById(Integer index) {
+        return foundedPackages.get(index);
+    }
+
     public static void printFoundedPackages() {
         System.out.printf("%s|    %s    |    %s\n", "№", "Name", "Link");
         for (int i=0; i<foundedPackages.size(); i++) {

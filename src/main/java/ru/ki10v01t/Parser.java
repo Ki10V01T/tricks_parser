@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,7 +19,7 @@ import ru.ki10v01t.service.InnerValuesForRegexps;
 
 
 public class Parser {
-    
+    Logger log = LogManager.getLogger("Parser");
     Parser(){};
 
     public void readMethodNames () {
@@ -29,24 +31,21 @@ public class Parser {
  * Parses input file, in according with selected mode
  * @param configFilePath - the absolute path to file in filesystem. If selected mode is CONFIG, checks: whether the value is non-zero  
  */
-    public void readConfig(String configFilePath) {
-        Path configFD = null;
+    public void readConfig(Path configFilePath) {
         try {
-            if (configFilePath == null || configFilePath == "") {
-                System.out.println("Не задан конфигурационный файл. Используется стандартный");
-                configFilePath = System.getProperty("user.dir") + "/src/main/resources/config.json";
+            if (configFilePath == null) {
+                log.info("Config file is not set. A built in file was used");
+                configFilePath = Paths.get(System.getProperty("user.dir") + "/src/main/resources/config.json");
             }
-            configFD = Paths.get(configFilePath);
-            if (Files.notExists(configFD)) {
-                System.out.println("Запрашиваемый конфигурационный файл не найден. (Временно) Используется стандартный");
-                //TODO: DEBUG
-                configFilePath = System.getProperty("user.dir") + "/src/main/resources/config.json";
+            if (Files.notExists(configFilePath)) {
+                log.error("A built in config file is not found. Create a new or restore from backup");
+                System.exit(1);
             } 
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
            
-        ConfigManager.createConfig(configFD.toFile());
+        ConfigManager.createConfig(configFilePath.toFile());
 
         //TODO: DEBUG
         ConfigManager.printConfig();
@@ -59,21 +58,25 @@ public class Parser {
         }
     }
 
-    public void startProcessingPayloadFile() {
-        Path payloadFile = Paths.get(ConfigManager.getPayloadInfo());
+    public void startProcessingPayloadFile(Path inputPayloadFilePath) {
+        Path payloadFilePath = null;
+        
+        if (inputPayloadFilePath != null) {
+            payloadFilePath = inputPayloadFilePath;
+        } else {
+            log.info("Was used a defined in config file path for payload file");
+            payloadFilePath = Paths.get(ConfigManager.getPayloadInfo());
+        }
         
         try {
             if (!ConfigManager.checkingForConfigExistence()) {
                 throw new ParserConfigurationException("Конфиг не задан");
             }   
         
-            if (Files.notExists(payloadFile)) {
+            if (Files.notExists(payloadFilePath)) {
                 throw new ParserConfigurationException("Файл для парсинга не найден");
             }
-
-            //readFromFileToString(payloadFile);
-            parseFile(readFromFileToString(payloadFile)); 
-            //parseFile(readFromFileToStringFIN(payloadFile)); 
+            parseFile(readFromFileToString(payloadFilePath));
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
             e.getMessage();
