@@ -3,8 +3,8 @@ package ru.ki10v01t;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
@@ -33,34 +33,59 @@ public class Downloader {
         destinationFolder = inputDestinationFolder.toAbsolutePath();
     }
 
+    public class DownloaderResult {
+        private final DOWNLOADER_RESULT_CODE code;
+        private final String packageName;
+
+        public DownloaderResult(DOWNLOADER_RESULT_CODE inputCode, String inputName) {
+            this.code = inputCode;
+            this.packageName = inputName;
+        }
+
+        public DOWNLOADER_RESULT_CODE getResultCode() {
+            return this.code;
+        }
+
+        public String getPackageName() {
+            return this.packageName;
+        }
+
+    }
+
     /**
      * Downloads a one package from url that was parsed from specific package from file and returns of download's result code.
      * @param pkg
      * @return result code of download
      * @throws NoSuchAlgorithmException
      * @throws IOException
-     * @throws MalformedURLException
      * @throws InvalidPathException
      */
-    public DOWNLOADER_RESULT_CODE downloadPackage(Package pkg) throws NoSuchAlgorithmException, IOException, InvalidPathException {
+    public DownloaderResult downloadPackage(Package pkg) throws NoSuchAlgorithmException, IOException, InvalidPathException {
         URL url = new URL(pkg.getLink());
-        String downloadedFileName = url.getFile();
+
+        String[] fileNameBits = url.getFile().split("/");
+        String downloadedFileName = fileNameBits[fileNameBits.length-1];
 
         Path pathToFile = Paths.get(destinationFolder.toString() + "/" + downloadedFileName); 
 
         if (Files.exists(pathToFile)
         && checkHash(pkg.getHash(), pathToFile)) {
-                return DOWNLOADER_RESULT_CODE.D_ALREADY_DOWNLOADED;
-        } 
+            return new DownloaderResult(DOWNLOADER_RESULT_CODE.D_ALREADY_DOWNLOADED, downloadedFileName);
+        }
 
         try (ReadableByteChannel rbc = Channels.newChannel(url.openStream());
             FileOutputStream fos = new FileOutputStream(pathToFile.toFile())) {
-            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-
+            //fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            ByteBuffer buf = ByteBuffer.allocate(8192);
+            while(rbc.read(buf) != -1) {
+                buf.flip();
+                fos.getChannel().write(buf);
+                buf.compact();
+            }            
             if (checkHash(pkg.getHash(), pathToFile)) {
-            return DOWNLOADER_RESULT_CODE.D_COMPLETE;
+            return new DownloaderResult(DOWNLOADER_RESULT_CODE.D_COMPLETE, downloadedFileName);
         }
-            return DOWNLOADER_RESULT_CODE.D_ERROR;
+            return new DownloaderResult(DOWNLOADER_RESULT_CODE.D_ERROR, downloadedFileName);
         }
     }
 

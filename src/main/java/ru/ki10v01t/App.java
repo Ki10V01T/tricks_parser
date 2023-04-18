@@ -2,8 +2,7 @@ package ru.ki10v01t;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.charset.MalformedInputException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -13,30 +12,30 @@ import java.util.Scanner;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import ru.ki10v01t.Downloader.DownloaderResult;
 import ru.ki10v01t.service.ResultsManager;
-import ru.ki10v01t.service.Package;
 
 
 public class App 
 {
-    private static Path destinationFolder = null;
+    private static Path outputFolder = null;
     private static Path payloadFilePath = null;
     private static Path configFilePath = null;
     private static final Logger log = LogManager.getLogger("AppMain");
 
-    private static void setDestinationFolderPath(String inputDestinationFolder) throws InvalidPathException, FileNotFoundException, IOException {
-        destinationFolder = Paths.get(inputDestinationFolder).toAbsolutePath();
-        if (Files.notExists(destinationFolder)) {    
+    private static void setOutputFolderPath(String newOutputFolder) throws InvalidPathException, FileNotFoundException, IOException, SecurityException, FileAlreadyExistsException {
+        outputFolder = Paths.get(newOutputFolder).toAbsolutePath();
+        if (Files.notExists(outputFolder)) {    
             System.out.println("Folder does not exist. Do you want to create it? type 'y' \n (If not, downloaded packages will store in a working directory of program)\n"
             + "> ");
             try (Scanner sc = new Scanner(System.in);){
                 if (sc.nextLine() == "y") {
-                    Files.createDirectories(destinationFolder);
+                    Files.createDirectories(outputFolder);
                     return;
                 } else {
-                    destinationFolder = Paths.get(System.getProperty("user.dir") + "/DownloadedPackages");
-                    if (Files.notExists(destinationFolder)) {
-                        Files.createDirectories(destinationFolder);
+                    outputFolder = Paths.get(System.getProperty("user.dir") + "/DownloadedPackages");
+                    if (Files.notExists(outputFolder)) {
+                        Files.createDirectories(outputFolder);
                     }
                     return;
                 }
@@ -45,30 +44,32 @@ public class App
 
     }
 
-    private static void setPayloadFilePath(String inputPayloadFilePath) throws InvalidPathException{
+    private static void setPayloadFilePath(String inputPayloadFilePath) throws InvalidPathException, FileNotFoundException{
         Path filePath = Paths.get(inputPayloadFilePath).toAbsolutePath();
 
-        if (Files.notExists(filePath)) {
+        if (Files.exists(filePath)) {
             payloadFilePath = filePath;
             return;
         }
+        throw new FileNotFoundException("File with payload not found");
     }
 
-    private static void setConfigFilePath(String inputConfigFilePath) throws InvalidPathException{
+    private static void setConfigFilePath(String inputConfigFilePath) throws InvalidPathException, FileNotFoundException{
         Path filePath = Paths.get(inputConfigFilePath).toAbsolutePath();
         
-        if (Files.notExists(filePath)) {
+        if (Files.exists(filePath)) {
             configFilePath = filePath;
             return;
         }
+        throw new FileNotFoundException("File with config json not found");
     }
 
-    private static void cmdLineArgParse(String[] args) throws FileNotFoundException, IOException{
-        for(int i=1; i<args.length; i++) {
+    private static void cmdLineArgParse(String[] args) throws FileNotFoundException, IOException, SecurityException, FileAlreadyExistsException{
+        for(int i=0; i<args.length; i++) {
             switch (args[i]){
                 case ("-o"):{
                     if (args[i+1].length() > 2) {
-                        setDestinationFolderPath(args[i+1]);
+                        setOutputFolderPath(args[i+1]);
                         i++;
                         log.debug("Sets path to folder with downloaded packages is successful");
                         continue;
@@ -117,7 +118,7 @@ public class App
 
     public static void main(String[] args )
     {
-        if (args[1] == "--DEBUG") {
+        if (args[0] == "--DEBUG") {
 
         } else {
             try {
@@ -131,33 +132,56 @@ public class App
         
         
         Parser parser = new Parser();
-        Downloader downloader = new Downloader(destinationFolder);
+        Downloader downloader = new Downloader(outputFolder);
         parser.readConfig(configFilePath);
         parser.startProcessingPayloadFile(payloadFilePath);
 
-        try {
-            for(Package pkg : ResultsManager.getFoundedPackages()) {
-                downloader.downloadPackage(pkg);
+        try (Scanner sc = new Scanner (System.in)) {
+            System.out.println("Enter number of package: ");
+            Integer pkgNumber = Integer.parseInt(sc.nextLine()); 
+
+            Integer totalPackagesNumber = ResultsManager.getFoundedPackages().size()-1;
+            if (pkgNumber < 0 || pkgNumber > totalPackagesNumber) {
+                throw new NumberFormatException();
             }
+
+            
+            DownloaderResult downloadResult = downloader.downloadPackage(ResultsManager.getFoundedPackageById(pkgNumber));
+
+            switch (downloadResult.getResultCode()) {
+                case D_COMPLETE: {
+                    System.out.println("Download complete. Filename is: " + downloadResult.getPackageName());
+                    break;
+                }
+                case D_ALREADY_DOWNLOADED: {
+                    System.out.println("File is already downloaded. Filename is: " + downloadResult.getPackageName());
+                    break;
+                }
+                case D_ERROR:{
+                    System.out.println("Download error. Filename is: " + downloadResult.getPackageName());
+                    break;
+                }
+            }
+        
         } catch (NoSuchAlgorithmException ex) {
             log.error("Set incorrect algorithm type name");
             ex.printStackTrace();
+            log.error("Set incorrect path to downloaded packages");
+            ex.printStackTrace();
+        } catch (NumberFormatException ex) {
+            log.error("Invalid number of package was entered");
+        } catch (InvalidPathException ex) {
+            log.error("Invalid output path was entered");
+            ex.printStackTrace();
+        } catch (SecurityException ex) {
+            log.error("Read/Write operation by this path is not allowed");
+            ex.printStackTrace();
+        } catch (FileNotFoundException ex) {
+            log.error(ex.getMessage());
+            ex.printStackTrace();  
         } catch (IOException ex) {
             log.error("IO Error");
             ex.printStackTrace();
-        } catch (InvalidPathException ex) {
-            log.error("Set incorrect path to downloaded packages");
-            ex.printStackTrace();
         }
-        // try {
-        //     downloader = checkDestinationFolder(args[0]);
-        // } catch (FileNotFoundException ex){
-        //     ex.printStackTrace();
-        // } catch (IOException ex) {
-        //     ex.printStackTrace();
-        // }
-
-        //System.out.print(System.getProperty("user.dir") + "/src/main/resources/config.json");
-        
     }
 }
