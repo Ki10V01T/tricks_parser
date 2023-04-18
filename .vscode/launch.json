@@ -6,16 +6,35 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Launch Current File",
+            "name": "Launch with Arguments Prompt",
             "request": "launch",
-            "mainClass": "${file}"
+            "mainClass": "ru.ki10v01t.App",
+            "projectName": "winetricksparser",
+            "args": ["-o", "/home/dimidrol/Documents/testf", 
+            "-c", "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/config.json", 
+            "-p", "/home/dimidrol/Documents/Workspace/git/tricks_parser/src/main/resources/winetricks"]
         },
         {
             "type": "java",
-            "name": "Launch App",
+            "name": "Test the help option",
             "request": "launch",
             "mainClass": "ru.ki10v01t.App",
-            "projectName": "winetricksparser"
+            "projectName": "winetricksparser",
+            "args": ["-h"]
         }
+        // ,
+        // {
+        //     "type": "java",
+        //     "name": "Launch Current File",
+        //     "request": "launch",
+        //     "mainClass": "${file}"
+        // },
+        // {
+        //     "type": "java",
+        //     "name": "Launch App",
+        //     "request": "launch",
+        //     "mainClass": "ru.ki10v01t.App",
+        //     "projectName": "winetricksparser"
+        // }
     ]
 }
