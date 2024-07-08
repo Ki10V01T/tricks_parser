@@ -9,6 +9,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -26,10 +30,10 @@ public class App
     private static void setOutputFolderPath(String newOutputFolder) throws InvalidPathException, FileNotFoundException, IOException, SecurityException, FileAlreadyExistsException {
         outputFolder = Paths.get(newOutputFolder).toAbsolutePath();
         if (Files.notExists(outputFolder)) {    
-            System.out.println("Folder does not exist. Do you want to create it? type 'y' \n (If not, downloaded packages will store in a working directory of program)\n"
+            System.out.print("Folder does not exist. Do you want to create it? type 'y' \n (If not, downloaded packages will store in a working directory of program)\n"
             + "> ");
             try (Scanner sc = new Scanner(System.in);){
-                if (sc.nextLine() == "y") {
+                if (sc.nextLine().equals("y")) {
                     Files.createDirectories(outputFolder);
                     return;
                 } else {
@@ -74,8 +78,7 @@ public class App
                         log.debug("Sets path to folder with downloaded packages is successful");
                         continue;
                     } else {
-                        log.error("Path to folder with downloaded packages sets incorrect");
-                        throw new IOException();
+                        throw new IOException("Path to folder with downloaded packages sets incorrect");
                     }
                 }
                 case ("-c"):{
@@ -85,8 +88,7 @@ public class App
                         log.debug("Sets json config file path is successful");
                         continue;
                     } else {
-                        log.error("Path to json config file sets incorrect");
-                        throw new IOException();
+                        throw new IOException("Path to json config file sets incorrect");
                     }
                 }
                 case ("-p"):{
@@ -96,8 +98,7 @@ public class App
                         log.debug("Sets payload file path is successful");
                         continue;
                     } else {
-                        log.error("Path to payload file path sets incorrect");
-                        throw new IOException();
+                        throw new IOException("Path to payload file path sets incorrect");
                     }
                 }
                 case ("-h"):{
@@ -123,20 +124,22 @@ public class App
         } else {
             try {
                 cmdLineArgParse(args);
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            } catch (FileNotFoundException fnfe) {
+                log.error(fnfe.getMessage(), fnfe);
+                System.exit(1);
+            } catch (IOException ioe) {
+                log.error(ioe.getMessage(), ioe);
             }
         }
         
         
-        Parser parser = new Parser();
         Downloader downloader = new Downloader(outputFolder);
-        parser.readConfig(configFilePath);
-        parser.startProcessingPayloadFile(payloadFilePath);
-
+        
         try (Scanner sc = new Scanner (System.in)) {
+            Parser parser = new Parser(configFilePath);
+            parser.startProcessingPayloadFile(payloadFilePath);
+            
+            //TODO:
             System.out.println("Enter number of package: ");
             Integer pkgNumber = Integer.parseInt(sc.nextLine()); 
 
@@ -163,25 +166,34 @@ public class App
                 }
             }
         
-        } catch (NoSuchAlgorithmException ex) {
-            log.error("Set incorrect algorithm type name");
-            ex.printStackTrace();
-            log.error("Set incorrect path to downloaded packages");
-            ex.printStackTrace();
-        } catch (NumberFormatException ex) {
-            log.error("Invalid number of package was entered");
-        } catch (InvalidPathException ex) {
-            log.error("Invalid output path was entered");
-            ex.printStackTrace();
-        } catch (SecurityException ex) {
-            log.error("Read/Write operation by this path is not allowed");
-            ex.printStackTrace();
-        } catch (FileNotFoundException ex) {
-            log.error(ex.getMessage());
-            ex.printStackTrace();  
-        } catch (IOException ex) {
-            log.error("IO Error");
-            ex.printStackTrace();
+        } catch (NoSuchAlgorithmException nsae) {
+            log.error("Set incorrect algorithm type name", nsae);
+            System.exit(1);
+            //log.error("Set incorrect path to downloaded packages", nsae);
+        } catch (NumberFormatException nfe) {
+            log.error("Invalid number of package was entered", nfe);
+            System.exit(1);
+        } catch (InvalidPathException ipe) {
+            log.error("Invalid output path was entered", ipe);
+            System.exit(1);
+        } catch (SecurityException se) {
+            log.error("Read/Write operation by this path is not allowed", se);
+            System.exit(1);
+        } catch (FileNotFoundException fnfe) {
+            log.error(fnfe.getMessage(), fnfe);
+            System.exit(1);
+        } catch (IOException ioe) {
+            log.error("IO Error", ioe);
+            System.exit(1);
+        } catch (ExecutionException ee) {
+            log.error(ee.getMessage(), ee);
+            System.exit(1);
+        } catch (ParserConfigurationException pce) {
+            log.error(pce.getMessage(), pce);
+            System.exit(1);
+        } catch (InterruptedException ie) {
+            log.error(ie.getMessage(), ie);
+            System.exit(1);
         }
     }
 }

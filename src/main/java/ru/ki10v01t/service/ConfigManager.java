@@ -37,27 +37,23 @@ public class ConfigManager {
     }
 
 
-    public static void createConfig (File configFD) {
+    public static void createConfig (File configFD) throws IOException {
         if (objectMapper == null) {
             objectMapper = new ObjectMapper();
         }        
-
-        try {
-            currentConfig = objectMapper.readValue(configFD, Config.class);
-            maintainer = new ConfigMaintainer();
-            //currentConfig = objectMapper.readValue(file, new TypeReference<>(){});
-            //setDeclaredInnerValuesFields(currentConfig.getRegexps().get(0));
-            maintainer.makePatterns();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        
+        currentConfig = objectMapper.readValue(configFD, Config.class);
+        maintainer = new ConfigMaintainer();
+        //currentConfig = objectMapper.readValue(file, new TypeReference<>(){});
+        //setDeclaredInnerValuesFields(currentConfig.getRegexps().get(0));
+        maintainer.makePatterns();
     }
 
     public static String getPayloadInfo() {
         return currentConfig.getPayloadFilePath();
     }
 
-    public static void prepareToParse(String fileData) {
+    public static void prepareToParse(StringBuilder fileData) {
         maintainer.makeMatchers(fileData);
     }
     

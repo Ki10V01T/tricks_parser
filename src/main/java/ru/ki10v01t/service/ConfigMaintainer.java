@@ -38,7 +38,7 @@ public class ConfigMaintainer {
         }
     }
 
-    public void makeMatchers(String fileData) {
+    public void makeMatchers(StringBuilder fileData) {
         InnerValuesForRegexps<Matcher> m;
 
         for (InnerValuesForRegexps<Pattern> el : patterns) {

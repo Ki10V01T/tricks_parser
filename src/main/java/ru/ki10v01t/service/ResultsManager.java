@@ -11,7 +11,7 @@ public class ResultsManager {
 
 
     
-    public static void addPackage(Package inputPackage) {
+    public synchronized static void addFoundedPackage(Package inputPackage) {
         foundedPackages.add(inputPackage);
     }
 
