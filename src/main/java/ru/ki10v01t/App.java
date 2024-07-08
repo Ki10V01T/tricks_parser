@@ -2,6 +2,7 @@ package ru.ki10v01t;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -151,21 +152,11 @@ public class App
             
             DownloaderResult downloadResult = downloader.downloadPackage(ResultsManager.getFoundedPackageById(pkgNumber));
 
-            switch (downloadResult.getResultCode()) {
-                case D_COMPLETE: {
-                    System.out.println("Download complete. Filename is: " + downloadResult.getPackageName());
-                    break;
-                }
-                case D_ALREADY_DOWNLOADED: {
-                    System.out.println("File is already downloaded. Filename is: " + downloadResult.getPackageName());
-                    break;
-                }
-                case D_ERROR:{
-                    System.out.println("Download error. Filename is: " + downloadResult.getPackageName());
-                    break;
-                }
-            }
+            System.out.println(downloadResult.getResult());
         
+        } catch (SocketTimeoutException ste) {
+            log.error("Error while establishing connection with remote host");
+            System.exit(1);
         } catch (NoSuchAlgorithmException nsae) {
             log.error("Set incorrect algorithm type name", nsae);
             System.exit(1);

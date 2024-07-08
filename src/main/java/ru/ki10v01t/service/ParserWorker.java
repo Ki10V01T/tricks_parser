@@ -3,7 +3,7 @@ package ru.ki10v01t.service;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 
-public class ParserWorker implements Callable<Boolean> {
+public class ParserWorker implements Runnable {
     private int beginningFoundStartingRegion;
     private int endingFoundStartingRegion;
     private InnerValuesForRegexps<Matcher> el;
@@ -60,15 +60,15 @@ public class ParserWorker implements Callable<Boolean> {
         return parsedLink;
     }
 
-    // @Override
-    // public void run() {
-    //     multithreadParsing();
-    // }
-
     @Override
-    public Boolean call() throws Exception {
+    public void run() {
         multithreadParsing();
-        return true;
     }
+
+    // @Override
+    // public Boolean call() throws Exception {
+    //     multithreadParsing();
+    //     return true;
+    // }
 
 }

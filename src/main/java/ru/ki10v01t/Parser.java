@@ -58,7 +58,7 @@ public class Parser {
         } 
         ConfigManager.createConfig(configFilePath.toFile());
         //TODO: DEBUG
-        ConfigManager.printConfig();
+        //ConfigManager.printConfig();
     } 
 
     private void printDeclaredConfigClassFields() {
@@ -86,6 +86,8 @@ public class Parser {
         if (Files.notExists(payloadFilePath)) {
             throw new ParserConfigurationException("File for parse is not find");
         }
+
+        System.out.println("\nParsing file...");
         parseFile(readFromFileToString(payloadFilePath));
     }
 
@@ -113,110 +115,110 @@ public class Parser {
         return fileData;
     }
 
-    // private void parseFile(StringBuilder fileData) throws InterruptedException, ExecutionException {
-
-    //     ConfigManager.prepareToParse(fileData);
-
-    //     for(InnerValuesForRegexps<Matcher> el : ConfigManager.getPrepatedTargets()) {
-    //         while(el.getMethodNameAndBody().find()) {
-    //             int beginningFoundStartingRegion = el.getMethodNameAndBody().start();
-    //             int endingFoundStartingRegion = el.getMethodNameAndBody().end();
-
-    //             for(Matcher target : el.getSearchTargets())
-    //             {
-    //                 target = target.region(beginningFoundStartingRegion, endingFoundStartingRegion);
-    //                 while(target.find()) {
-    //                     //thread1
-    //                     String findedMethodName = "";
-    //                     Matcher targetName = el.getMethodName().region(beginningFoundStartingRegion, endingFoundStartingRegion);
-    //                     while(targetName.find()) {
-    //                         findedMethodName = fileData.substring(targetName.start(), targetName.end());
-    //                     }
-
-    //                     ResultsManager.addFoundedPackage(new Package(
-    //                                                         linkExtraction(el, target.start(), target.end(), fileData),
-    //                                                         hashExtraction(el, target.start(), target.end(), fileData),
-    //                                                         findedMethodName));
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     ResultsManager.printFoundedPackages();
-    // }
-
     private void parseFile(StringBuilder fileData) throws InterruptedException, ExecutionException {
 
         ConfigManager.prepareToParse(fileData);
 
-        //int beginningFoundStartingRegion;
-        //int endingFoundStartingRegion;
-        //String findedMethodName = "";
-        Deque<CompletableFuture<Boolean>> tasksList = new ArrayDeque<>();
-        ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
         for(InnerValuesForRegexps<Matcher> el : ConfigManager.getPrepatedTargets()) {
             while(el.getMethodNameAndBody().find()) {
-                ParserWorker worker = new ParserWorker(el, fileData);
-                // Runnable methodNameAndBodyTask = () -> {
-                    // int beginningFoundStartingRegion = el.getMethodNameAndBody().start();
-                    // int endingFoundStartingRegion = el.getMethodNameAndBody().end();
+                int beginningFoundStartingRegion = el.getMethodNameAndBody().start();
+                int endingFoundStartingRegion = el.getMethodNameAndBody().end();
 
-                    // for(Matcher target : el.getSearchTargets())
-                    // {
-                    //     target = target.region(beginningFoundStartingRegion, endingFoundStartingRegion);
-                    //     while(target.find()) {
-                    //         //thread1
-                    //         String findedMethodName = "";
-                    //         Matcher targetName = el.getMethodName().region(beginningFoundStartingRegion, endingFoundStartingRegion);
-                    //         while(targetName.find()) {
-                    //             findedMethodName = fileData.substring(targetName.start(), targetName.end());
-                    //         }
+                for(Matcher target : el.getSearchTargets())
+                {
+                    target = target.region(beginningFoundStartingRegion, endingFoundStartingRegion);
+                    while(target.find()) {
+                        //thread1
+                        String findedMethodName = "";
+                        Matcher targetName = el.getMethodName().region(beginningFoundStartingRegion, endingFoundStartingRegion);
+                        while(targetName.find()) {
+                            findedMethodName = fileData.substring(targetName.start(), targetName.end());
+                        }
 
-                    //         ResultsManager.addFoundedPackage(new Package(
-                    //                                             linkExtraction(el, target.start(), target.end(), fileData),
-                    //                                             hashExtraction(el, target.start(), target.end(), fileData),
-                    //                                             findedMethodName));
-                    //     }
-                    // }
-                // };
-
-                //FutureTask<Void> voidMethodNameAndBodyTask = new FutureTask<>(methodNameAndBodyTask);
-                tasksList.add(CompletableFuture.supplyAsync(() -> worker, threadPool));
-                //CompletableFuture.runAsync(worker, threadPool);
+                        ResultsManager.addFoundedPackage(new Package(
+                                                            linkExtraction(el, target.start(), target.end(), fileData),
+                                                            hashExtraction(el, target.start(), target.end(), fileData),
+                                                            findedMethodName));
+                    }
+                }
             }
         }
-        // threadPool.shutdown();
-        // threadPool.awaitTermination(45, TimeUnit.MINUTES);
-        for(CompletableFuture<Void> resultElement : tasksList) {
-            resultElement.get();
-        }
-
-        threadPool.shutdown();
         ResultsManager.printFoundedPackages();
-        //findedPackagesList.toString();
     }
 
-    // private StringBuilder hashExtraction(InnerValuesForRegexps<Matcher> el, int regionStartId, int regionEndId, StringBuilder fileData) {
-    //     StringBuilder parsedHash = new StringBuilder(15);
-    //     //String parsedHash = "";
-    //     Matcher targetHash = el.getHashExtractor().region(regionStartId, regionEndId);
-    //     while(targetHash.find()) {
-    //         parsedHash.append(fileData.substring(targetHash.start(), targetHash.end()));
-    //         //parsedHash = fileData.substring(targetHash.start(), targetHash.end());
+    // private void parseFile(StringBuilder fileData) throws InterruptedException, ExecutionException {
+
+    //     ConfigManager.prepareToParse(fileData);
+
+    //     //int beginningFoundStartingRegion;
+    //     //int endingFoundStartingRegion;
+    //     //String findedMethodName = "";
+    //     Deque<CompletableFuture<Void>> tasksList = new ArrayDeque<>();
+    //     ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+    //     for(InnerValuesForRegexps<Matcher> el : ConfigManager.getPrepatedTargets()) {
+    //         while(el.getMethodNameAndBody().find()) {
+    //             ParserWorker worker = new ParserWorker(el, fileData);
+    //             // Runnable methodNameAndBodyTask = () -> {
+    //                 // int beginningFoundStartingRegion = el.getMethodNameAndBody().start();
+    //                 // int endingFoundStartingRegion = el.getMethodNameAndBody().end();
+
+    //                 // for(Matcher target : el.getSearchTargets())
+    //                 // {
+    //                 //     target = target.region(beginningFoundStartingRegion, endingFoundStartingRegion);
+    //                 //     while(target.find()) {
+    //                 //         //thread1
+    //                 //         String findedMethodName = "";
+    //                 //         Matcher targetName = el.getMethodName().region(beginningFoundStartingRegion, endingFoundStartingRegion);
+    //                 //         while(targetName.find()) {
+    //                 //             findedMethodName = fileData.substring(targetName.start(), targetName.end());
+    //                 //         }
+
+    //                 //         ResultsManager.addFoundedPackage(new Package(
+    //                 //                                             linkExtraction(el, target.start(), target.end(), fileData),
+    //                 //                                             hashExtraction(el, target.start(), target.end(), fileData),
+    //                 //                                             findedMethodName));
+    //                 //     }
+    //                 // }
+    //             // };
+
+    //             //FutureTask<Void> voidMethodNameAndBodyTask = new FutureTask<>(methodNameAndBodyTask);
+    //             //tasksList.add(CompletableFuture.runAsync(worker, threadPool));
+    //             CompletableFuture.runAsync(worker, threadPool);
+    //         }
     //     }
-    //     parsedHash.trimToSize();
-    //     return parsedHash;
+    //     //threadPool.shutdown();
+    //     threadPool.awaitTermination(45, TimeUnit.MINUTES);
+    //     // for(CompletableFuture<Void> resultElement : tasksList) {
+    //     //     resultElement.get();
+    //     // }
+
+    //     threadPool.shutdown();
+    //     ResultsManager.printFoundedPackages();
+    //     //findedPackagesList.toString();
     // }
 
-    // private StringBuilder linkExtraction(InnerValuesForRegexps<Matcher> el, int regionStartId, int regionEndId, StringBuilder fileData) {
-    //     StringBuilder parsedLink = new StringBuilder(30);
-    //     //String parsedLink = "";
-    //     Matcher targetLink = el.getLinkExtractor().region(regionStartId, regionEndId);
-    //     while(targetLink.find()) {
-    //         parsedLink.append(fileData.substring(targetLink.start(), targetLink.end()));
-    //         //parsedLink = fileData.substring(targetLink.start(), targetLink.end());
-    //     }
-    //     parsedLink.trimToSize();
-    //     return parsedLink;
-    // }
+    private StringBuilder hashExtraction(InnerValuesForRegexps<Matcher> el, int regionStartId, int regionEndId, StringBuilder fileData) {
+        StringBuilder parsedHash = new StringBuilder(15);
+        //String parsedHash = "";
+        Matcher targetHash = el.getHashExtractor().region(regionStartId, regionEndId);
+        while(targetHash.find()) {
+            parsedHash.append(fileData.substring(targetHash.start(), targetHash.end()));
+            //parsedHash = fileData.substring(targetHash.start(), targetHash.end());
+        }
+        parsedHash.trimToSize();
+        return parsedHash;
+    }
+
+    private StringBuilder linkExtraction(InnerValuesForRegexps<Matcher> el, int regionStartId, int regionEndId, StringBuilder fileData) {
+        StringBuilder parsedLink = new StringBuilder(30);
+        //String parsedLink = "";
+        Matcher targetLink = el.getLinkExtractor().region(regionStartId, regionEndId);
+        while(targetLink.find()) {
+            parsedLink.append(fileData.substring(targetLink.start(), targetLink.end()));
+            //parsedLink = fileData.substring(targetLink.start(), targetLink.end());
+        }
+        parsedLink.trimToSize();
+        return parsedLink;
+    }
 }

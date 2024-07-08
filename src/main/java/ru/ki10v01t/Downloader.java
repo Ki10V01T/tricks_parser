@@ -3,9 +3,12 @@ package ru.ki10v01t;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -46,10 +49,33 @@ public class Downloader {
             return this.code;
         }
 
-        public String getPackageName() {
-            return this.packageName;
-        }
+        public String getResult() {
+            String resultMessage;
+            
+            if (packageName.equals("")) {
+                resultMessage = "Downloading package error. Remote host doesn't returned nothing";
+            }
 
+            
+            switch (code) {
+                case D_COMPLETE -> resultMessage = "Download complete. Filename is: " + packageName;
+                case D_ALREADY_DOWNLOADED -> resultMessage = "File is already downloaded. Filename is: " + packageName;
+                case D_ERROR -> resultMessage = "Download error. Filename is: " + packageName;
+                default -> resultMessage = "FATAL ERROR";
+            }
+
+            return resultMessage;
+        }
+    }
+
+    private void checkConnection(URL url) throws IOException, SocketTimeoutException {
+        URLConnection connection = url.openConnection();
+
+        System.out.println("Remote host connection attempting...");
+        connection.setReadTimeout(15000);
+        connection.connect();
+
+        System.out.println("Connection successfull. Continue downloading...");
     }
 
     /**
@@ -60,28 +86,41 @@ public class Downloader {
      * @throws IOException
      * @throws InvalidPathException
      */
-    public DownloaderResult downloadPackage(Package pkg) throws NoSuchAlgorithmException, IOException, InvalidPathException {
+    public DownloaderResult downloadPackage(Package pkg) throws NoSuchAlgorithmException, IOException, InvalidPathException, SocketTimeoutException {
         URL url = new URL(pkg.getLink());
+        
+        checkConnection(url);
 
         String[] fileNameBits = url.getFile().split("/");
+        
         String downloadedFileName = fileNameBits[fileNameBits.length-1];
 
         Path pathToFile = Paths.get(destinationFolder.toString() + "/" + downloadedFileName); 
 
-        if (Files.exists(pathToFile)
-        && checkHash(pkg.getHash(), pathToFile)) {
+        if (Files.exists(pathToFile) && checkHash(pkg.getHash(), pathToFile)) {
             return new DownloaderResult(DOWNLOADER_RESULT_CODE.D_ALREADY_DOWNLOADED, downloadedFileName);
         }
 
+        // try (ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+        //     FileOutputStream fos = new FileOutputStream(pathToFile.toFile())) {
+            
+        //     ByteBuffer buf = ByteBuffer.allocate(8192);
+        //     while(rbc.read(buf) != -1) {
+        //         buf.flip();
+        //         fos.getChannel().write(buf);
+        //         buf.compact();
+        //     } 
+
+        //     if (checkHash(pkg.getHash(), pathToFile)) {
+        //     return new DownloaderResult(DOWNLOADER_RESULT_CODE.D_COMPLETE, downloadedFileName);
+        // }
+        //     return new DownloaderResult(DOWNLOADER_RESULT_CODE.D_ERROR, downloadedFileName);
+        // }
+
         try (ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-            FileOutputStream fos = new FileOutputStream(pathToFile.toFile())) {
-            //fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-            ByteBuffer buf = ByteBuffer.allocate(8192);
-            while(rbc.read(buf) != -1) {
-                buf.flip();
-                fos.getChannel().write(buf);
-                buf.compact();
-            }            
+            FileOutputStream fos = new FileOutputStream(pathToFile.toFile());
+            FileChannel fileChannel = fos.getChannel()) {
+                fileChannel.transferFrom(rbc, 0, Long.MAX_VALUE);
             if (checkHash(pkg.getHash(), pathToFile)) {
             return new DownloaderResult(DOWNLOADER_RESULT_CODE.D_COMPLETE, downloadedFileName);
         }
