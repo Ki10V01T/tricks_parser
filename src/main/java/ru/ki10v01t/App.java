@@ -140,7 +140,6 @@ public class App
             Parser parser = new Parser(configFilePath);
             parser.startProcessingPayloadFile(payloadFilePath);
             
-            //TODO:
             System.out.println("Enter number of package: ");
             Integer pkgNumber = Integer.parseInt(sc.nextLine()); 
 

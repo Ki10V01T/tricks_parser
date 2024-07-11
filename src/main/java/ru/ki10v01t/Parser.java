@@ -6,15 +6,7 @@ import java.nio.file.Paths;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,9 +14,7 @@ import java.util.stream.Stream;
 import javax.xml.parsers.ParserConfigurationException;
 
 import ru.ki10v01t.service.Package;
-import ru.ki10v01t.service.ParserWorker;
 import ru.ki10v01t.service.ResultsManager;
-import ru.ki10v01t.service.Config;
 import ru.ki10v01t.service.ConfigManager;
 import ru.ki10v01t.service.InnerValuesForRegexps;
 
@@ -35,8 +25,6 @@ public class Parser {
     public void readMethodNames () {
         
     }
-
-    private Parser() {}
 
     public Parser(Path configFilePath) throws NullPointerException, IOException {
         readConfig(configFilePath);
@@ -57,16 +45,9 @@ public class Parser {
             System.exit(1);
         } 
         ConfigManager.createConfig(configFilePath.toFile());
-        //TODO: DEBUG
+
         //ConfigManager.printConfig();
     } 
-
-    private void printDeclaredConfigClassFields() {
-        for (String s : ConfigManager.getDeclaredInnerValuesFields())
-        {
-            System.out.println(s);
-        }
-    }
 
     public void startProcessingPayloadFile(Path inputPayloadFilePath) throws InterruptedException, ParserConfigurationException, ExecutionException {
         Path payloadFilePath = null;
@@ -145,58 +126,6 @@ public class Parser {
         }
         ResultsManager.printFoundedPackages();
     }
-
-    // private void parseFile(StringBuilder fileData) throws InterruptedException, ExecutionException {
-
-    //     ConfigManager.prepareToParse(fileData);
-
-    //     //int beginningFoundStartingRegion;
-    //     //int endingFoundStartingRegion;
-    //     //String findedMethodName = "";
-    //     Deque<CompletableFuture<Void>> tasksList = new ArrayDeque<>();
-    //     ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
-    //     for(InnerValuesForRegexps<Matcher> el : ConfigManager.getPrepatedTargets()) {
-    //         while(el.getMethodNameAndBody().find()) {
-    //             ParserWorker worker = new ParserWorker(el, fileData);
-    //             // Runnable methodNameAndBodyTask = () -> {
-    //                 // int beginningFoundStartingRegion = el.getMethodNameAndBody().start();
-    //                 // int endingFoundStartingRegion = el.getMethodNameAndBody().end();
-
-    //                 // for(Matcher target : el.getSearchTargets())
-    //                 // {
-    //                 //     target = target.region(beginningFoundStartingRegion, endingFoundStartingRegion);
-    //                 //     while(target.find()) {
-    //                 //         //thread1
-    //                 //         String findedMethodName = "";
-    //                 //         Matcher targetName = el.getMethodName().region(beginningFoundStartingRegion, endingFoundStartingRegion);
-    //                 //         while(targetName.find()) {
-    //                 //             findedMethodName = fileData.substring(targetName.start(), targetName.end());
-    //                 //         }
-
-    //                 //         ResultsManager.addFoundedPackage(new Package(
-    //                 //                                             linkExtraction(el, target.start(), target.end(), fileData),
-    //                 //                                             hashExtraction(el, target.start(), target.end(), fileData),
-    //                 //                                             findedMethodName));
-    //                 //     }
-    //                 // }
-    //             // };
-
-    //             //FutureTask<Void> voidMethodNameAndBodyTask = new FutureTask<>(methodNameAndBodyTask);
-    //             //tasksList.add(CompletableFuture.runAsync(worker, threadPool));
-    //             CompletableFuture.runAsync(worker, threadPool);
-    //         }
-    //     }
-    //     //threadPool.shutdown();
-    //     threadPool.awaitTermination(45, TimeUnit.MINUTES);
-    //     // for(CompletableFuture<Void> resultElement : tasksList) {
-    //     //     resultElement.get();
-    //     // }
-
-    //     threadPool.shutdown();
-    //     ResultsManager.printFoundedPackages();
-    //     //findedPackagesList.toString();
-    // }
 
     private StringBuilder hashExtraction(InnerValuesForRegexps<Matcher> el, int regionStartId, int regionEndId, StringBuilder fileData) {
         StringBuilder parsedHash = new StringBuilder(15);

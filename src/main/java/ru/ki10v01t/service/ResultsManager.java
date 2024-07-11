@@ -1,19 +1,13 @@
 package ru.ki10v01t.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 public class ResultsManager {
     private static ArrayList<Package> foundedPackages = new ArrayList<>();
     
-    ResultsManager() {
-        //foundedPackages = new ArrayList<>();
-    }
-
-
     
-    public synchronized static void addFoundedPackage(Package inputPackage) {
+    public static void addFoundedPackage(Package inputPackage) {
         foundedPackages.add(inputPackage);
     }
 

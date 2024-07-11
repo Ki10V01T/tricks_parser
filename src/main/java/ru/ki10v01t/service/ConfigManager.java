@@ -2,7 +2,6 @@ package ru.ki10v01t.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
@@ -13,28 +12,6 @@ public class ConfigManager {
     private static Config currentConfig = null;
     private static ConfigMaintainer maintainer = null;
     private static ObjectMapper objectMapper = null;
-
-    @Deprecated
-    private static ArrayList<String> configFields = null;
-    
-    @Deprecated
-    private static void setDeclaredInnerValuesFields(InnerValuesForRegexps<String> input) {
-        if (configFields ==  null) {
-            configFields = new ArrayList<String>();
-        }
-
-        int lastIndex;
-        Field[] tempArray = input.getClass().getDeclaredFields();
-        for (int i=0; i < tempArray.length; i++) {
-            lastIndex = tempArray[i].toString().lastIndexOf(".");
-            configFields.add(tempArray[i].toString().substring(lastIndex+1));
-        }
-    }
-
-    @Deprecated
-    public static ArrayList<String> getDeclaredInnerValuesFields() {
-        return configFields;
-    }
 
 
     public static void createConfig (File configFD) throws IOException {
