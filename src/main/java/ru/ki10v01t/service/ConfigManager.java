@@ -2,7 +2,6 @@ package ru.ki10v01t.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
@@ -14,50 +13,24 @@ public class ConfigManager {
     private static ConfigMaintainer maintainer = null;
     private static ObjectMapper objectMapper = null;
 
-    @Deprecated
-    private static ArrayList<String> configFields = null;
-    
-    @Deprecated
-    private static void setDeclaredInnerValuesFields(InnerValuesForRegexps<String> input) {
-        if (configFields ==  null) {
-            configFields = new ArrayList<String>();
-        }
 
-        int lastIndex;
-        Field[] tempArray = input.getClass().getDeclaredFields();
-        for (int i=0; i < tempArray.length; i++) {
-            lastIndex = tempArray[i].toString().lastIndexOf(".");
-            configFields.add(tempArray[i].toString().substring(lastIndex+1));
-        }
-    }
-
-    @Deprecated
-    public static ArrayList<String> getDeclaredInnerValuesFields() {
-        return configFields;
-    }
-
-
-    public static void createConfig (File configFD) {
+    public static void createConfig (File configFD) throws IOException {
         if (objectMapper == null) {
             objectMapper = new ObjectMapper();
         }        
-
-        try {
-            currentConfig = objectMapper.readValue(configFD, Config.class);
-            maintainer = new ConfigMaintainer();
-            //currentConfig = objectMapper.readValue(file, new TypeReference<>(){});
-            //setDeclaredInnerValuesFields(currentConfig.getRegexps().get(0));
-            maintainer.makePatterns();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        
+        currentConfig = objectMapper.readValue(configFD, Config.class);
+        maintainer = new ConfigMaintainer();
+        //currentConfig = objectMapper.readValue(file, new TypeReference<>(){});
+        //setDeclaredInnerValuesFields(currentConfig.getRegexps().get(0));
+        maintainer.makePatterns();
     }
 
     public static String getPayloadInfo() {
         return currentConfig.getPayloadFilePath();
     }
 
-    public static void prepareToParse(String fileData) {
+    public static void prepareToParse(StringBuilder fileData) {
         maintainer.makeMatchers(fileData);
     }
     

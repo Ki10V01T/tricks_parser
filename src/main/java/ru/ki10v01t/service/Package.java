@@ -9,9 +9,11 @@ public class Package {
     private String hash;
       
 
-    public Package(String inputLink, String inputHash, String inputMethodName) {
-        this.link = inputLink.replaceAll("^\"|\"$", "");
-        this.hash = inputHash.replaceAll("^\"|\"$", "");
+    public Package(StringBuilder inputLink, StringBuilder inputHash, String inputMethodName) {
+        this.link = inputLink.toString().replaceAll("^\"|\"$", "");;
+        this.hash = inputHash.toString().replaceAll("^\"|\"$", "");
+        // this.link = inputLink.replaceAll("^\"|\"$", "");
+        // this.hash = inputHash.replaceAll("^\"|\"$", "");
         this.methodName = inputMethodName.replaceAll("^\"|\"$", "");
     }
 
