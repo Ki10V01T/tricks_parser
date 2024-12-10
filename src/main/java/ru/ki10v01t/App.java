@@ -134,9 +134,9 @@ public class App
         }
         
         
-        Downloader downloader = new Downloader(outputFolder);
         
         try (Scanner sc = new Scanner (System.in)) {
+            Downloader downloader = new Downloader(outputFolder);
             Parser parser = new Parser(configFilePath);
             parser.startProcessingPayloadFile(payloadFilePath);
             

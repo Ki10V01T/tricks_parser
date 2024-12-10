@@ -31,7 +31,10 @@ public class Downloader {
      * 
      * @param inputDestinationFolder
      */
-    public Downloader(Path inputDestinationFolder) {
+    public Downloader(Path inputDestinationFolder) throws IOException {
+        if(inputDestinationFolder == null) {
+            throw new IOException("The output folder is not set");
+        }
         destinationFolder = inputDestinationFolder.toAbsolutePath();
     }
 
